@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Called Press</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- CSS próprio -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-2">
+          <button id="darkSwitch" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-moon" id="iconMoon"></i>
+            <i class="bi bi-brightness-high d-none" id="iconSun"></i>
+          </button>
+          <h3 class="mb-0">Called Press</h3>
+        </div>
+        <div class="tipo-chamado">
+          <span class="fw-bold me-2">Tipo de Chamado:</span>
+          <button id="btn-problema" class="btn btn-outline-primary ativo" onclick="mostrarTela('problema')">Problema</button>
+          <button id="btn-duvida" class="btn btn-outline-primary" onclick="mostrarTela('duvida')">Dúvida</button>
+          <button id="btn-contato" class="btn btn-outline-primary" onclick="mostrarTela('contato')">Contato Ativo</button>
+        </div>
+      </div>
+
+      <!-- TELAS -->
+      <div id="tela-problema" class="tela active">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Nº do documento</label>
+            <input type="text" id="docNumber" class="form-control" placeholder="ex: 31, 34, 35">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Mensagem de erro</label>
+            <input type="text" id="errorMessage" class="form-control" placeholder="Rejeição 204: Duplicidade de NF-e">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Causa do Problema</label>
+            <textarea id="problemCause" rows="2" class="form-control" placeholder="Descreva o que ocasionou o erro ou situação"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Resolução</label>
+            <textarea id="resolution" rows="2" class="form-control" placeholder="Descreva a resolução do problema"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="tela-duvida" class="tela">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Dúvida do cliente</label>
+            <textarea id="duvidaCliente" class="form-control" rows="2" placeholder="Descreva a dúvida do cliente"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Explicação</label>
+            <textarea id="duvidaExplicacao" class="form-control" rows="2" placeholder="Descreva sua explicação para o cliente"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="tela-contato" class="tela">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Relato do Contato</label>
+            <textarea id="contatoRelato" class="form-control" rows="2" placeholder="Descreva o relato do contato com o cliente"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMPOS COMUNS -->
+      <div class="row g-3 mt-2 align-items-center">
+        <div class="col-12">
+          <label class="form-label">Feedback do Cliente</label>
+          <textarea id="clientFeedback" class="form-control" rows="2" placeholder="Satisfação do cliente | Compreendeu ou não a solução, Nome e número do(s) envolvidos"></textarea>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Humor do Cliente</label>
+          <select id="humorSelection" class="form-select">
+            <option>Bom</option>
+            <option>Regular</option>
+            <option>Ruim</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label d-block">Upsell</label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="upsell" id="upsellYes" value="Sim">
+            <label class="form-check-label" for="upsellYes">Sim</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="upsell" id="upsellNo" value="Não" checked>
+            <label class="form-check-label" for="upsellNo">Não</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label d-block">Mensagens ou prints de erros</label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="captura" id="capturaYes" value="Sim">
+            <label class="form-check-label" for="capturaYes">Sim</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="captura" id="capturaNo" value="Não" checked>
+            <label class="form-check-label" for="capturaNo">Não</label>
+          </div>
+        </div>
+        <div class="col-12 mt-2">
+          <label class="form-label">Descrição do Upsell</label>
+          <textarea id="upsellDesc" class="form-control" rows="2" placeholder="Descreva o upsell (módulo vendido, negociação, etc)"></textarea>
+        </div>
+      </div>
+
+      <!-- BOTÕES -->
+      <div class="d-flex justify-content-between mt-4">
+        <div class="footer-buttons">
+          <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#creditosModal">Mostrar Créditos</button>
+          <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#diretriz"><i class="bi bi-info"></i> Ajuda</button>
+        </div>
+        <button id="copyBtn" class="btn btn-primary">Copiar textos <i class="bi bi-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAIS -->
+  <div class="modal fade" id="creditosModal"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Créditos</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Desenvolvido por Leonardo Tofoletti Ramos</div></div></div></div>
+  <div class="modal fade" id="diretriz"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Ajuda</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Preencha todas as informações obrigatórias e utilize o botão "Copiar textos" para enviar as informações no sistema.</div></div></div></div>
+
+  <!-- Mensagem copiado -->
+  <div id="copyMessage">Texto copiado!</div>
+
+  <!-- JS Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JS próprio -->
+  <script src="main.js"></script>
+</body>
+</html>

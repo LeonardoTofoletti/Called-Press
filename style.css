@@ -1,0 +1,94 @@
+:root {
+  --bg-light: #f7f8fa;
+  --bg-dark: #121212;
+  --text-light: #222;
+  --text-dark: #eaeaea;
+  --primary: #007bff;
+  --card-light: #fff;
+  --card-dark: #1f1f1f;
+  --placeholder-dark: #aaa;
+}
+
+body {
+  font-family: 'Comfortaa', sans-serif !important;
+  background: var(--bg-light);
+  color: var(--text-light);
+  transition: background .3s, color .3s;
+}
+body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+.form-container {
+  max-width: 950px;
+  max-height: 950px;
+  margin: 0 auto;
+  padding: 15px;
+  border-radius: 15px;
+  background: var(--card-light);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: background .3s;
+}
+body.dark .form-container { background: var(--card-dark); }
+
+* { font-family: 'Comfortaa', sans-serif !important; }
+
+.tipo-chamado button { border-radius: 8px; margin-right: 10px; transition: all .2s; }
+.tipo-chamado button.ativo { background: var(--primary); color: #fff; box-shadow: 0 0 8px var(--primary); }
+
+.tela { display: none; }
+.tela.active { display: block; }
+
+textarea, input, select {
+  background-color: #ebedf3 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  color: #111;
+}
+body.dark textarea, body.dark input, body.dark select {
+  background-color: #2a2a2a !important;
+  color: #eee !important;
+}
+
+::placeholder { color: #666 !important; }
+body.dark ::placeholder { color: var(--placeholder-dark) !important; }
+
+label, button, select, .form-label, h3, span { font-family: 'Comfortaa', sans-serif !important; }
+.footer-buttons button { border-radius: 6px; }
+
+/* Radio custom */
+input[type="radio"].form-check-input {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  width: 20px; height: 20px; border: 2px solid #333;
+  border-radius: 50%; position: relative; cursor: pointer; vertical-align: middle;
+  margin-right: 5px; transition: all 0.2s;
+}
+input[type="radio"].form-check-input:checked::after {
+  content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px;
+  background-color: #007bff; border-radius: 50%;
+}
+body.dark input[type="radio"].form-check-input { border-color: #eee; }
+body.dark input[type="radio"].form-check-input:checked::after { background-color: #fff; }
+
+textarea { overflow: hidden; resize: none; }
+
+/* Evita que o texto fique por baixo do microfone */
+.mic-btn + textarea,
+textarea { padding-right: 45px !important; }
+
+/* Botão microfone piscando */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(255,0,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
+}
+
+/* Mensagem copiado */
+#copyMessage {
+  position: fixed;
+  top: 20px; right: 20px;
+  background-color: #4caf50; color: white;
+  padding: 10px 15px; border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s;
+  z-index: 9999;
+}
