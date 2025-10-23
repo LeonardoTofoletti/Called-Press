@@ -19,7 +19,6 @@ body.dark { background: var(--bg-dark); color: var(--text-dark); }
 
 .form-container {
   max-width: 950px;
-  max-height: 950px;
   margin: 0 auto;
   padding: 15px;
   border-radius: 15px;
@@ -89,6 +88,28 @@ textarea { padding-right: 45px !important; }
   padding: 10px 15px; border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   opacity: 0; pointer-events: none;
-  transition: opacity 0.4s;
+  transition: opacity 0.4s, transform 0.4s;
   z-index: 9999;
+}
+
+.modal-body {
+  color: black;
+
+}
+
+h5 {
+  color: black;
+}
+
+li {
+  margin-left: 10px;
+}
+
+@keyframes piscar {
+  0%, 100% { background-color: #0dcaf0; } /* cor normal do btn-info */
+  50% { background-color: #ffc107; } /* cor de destaque */
+}
+
+.btn-piscar {
+  animation: piscar 1s infinite;
 }

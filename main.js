@@ -24,6 +24,24 @@ darkSwitch.addEventListener('click', () => {
   theme = theme === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', theme);
   applyTheme(theme);
+  
+});
+
+// ---- Botão de Novas Atualizações piscando ----
+const btnAtualizacoes = document.getElementById('novasAtualizacoes');
+const ATUALIZACAO_KEY = 'jaViuAtualizacao';
+const VERSAO_ATUALIZACAO = '23-10-2025'; // atualize sempre que tiver novidade
+
+// Se o usuário não viu essa versão, o botão pisca
+const jaViu = localStorage.getItem(ATUALIZACAO_KEY);
+if (jaViu !== VERSAO_ATUALIZACAO) {
+  btnAtualizacoes.classList.add('btn-piscar');
+}
+
+// Ao clicar no botão, considera que viu a atualização
+btnAtualizacoes.addEventListener('click', () => {
+  localStorage.setItem(ATUALIZACAO_KEY, VERSAO_ATUALIZACAO);
+  btnAtualizacoes.classList.remove('btn-piscar');
 });
 
 // ---- Copiar textos ----
@@ -78,6 +96,24 @@ camposAutoResize.forEach(id => {
   }
 });
 
+// ---- Função de formatação de texto reconhecido ----
+function formatarTextoReconhecido(texto) {
+  return texto
+    .replace(/\bvírgula\b/gi, ',')
+    .replace(/\bponto e vírgula\b/gi, ';')
+    .replace(/\bponto\b/gi, '.')
+    .replace(/\bdois pontos\b/gi, ':')
+    .replace(/\binterrogação\b/gi, '?')
+    .replace(/\bexclamação\b/gi, '!')
+    .replace(/\bnf\b/gi, 'nota fiscal')
+    .replace(/\bcli\b/gi, 'cliente')
+    .replace(/\bobs\b/gi, 'observação')
+    .replace(/\bnum\b/gi, 'número')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, c => c.toUpperCase());
+}
+
 // ---- Microfone Web Speech API ----
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -127,7 +163,8 @@ if (SpeechRecognition) {
     });
 
     recognition.onresult = (event) => {
-      const transcript = Array.from(event.results).map(r => r[0].transcript).join(' ');
+      let transcript = Array.from(event.results).map(r => r[0].transcript).join(' ');
+      transcript = formatarTextoReconhecido(transcript);
       campo.value += (campo.value ? ' ' : '') + transcript;
       autoResize(campo);
     };
@@ -140,7 +177,7 @@ if (SpeechRecognition) {
   console.warn("Reconhecimento de voz não suportado neste navegador.");
 }
 
-//texto erro ie copiar//
+// ---- Copiar texto de erro IE ----
 document.getElementById('copyErroIE').addEventListener('click', () => {
   const textoIE = `TIPO DE CHAMADO: Problema
 
@@ -164,3 +201,7 @@ MENSAGENS OU PRINT DE ERROS: Não`;
     setTimeout(() => { msg.style.opacity = '0'; }, 1500);
   });
 });
+
+// botão alertar att //
+
+
