@@ -139,3 +139,28 @@ if (SpeechRecognition) {
 } else {
   console.warn("Reconhecimento de voz não suportado neste navegador.");
 }
+
+//texto erro ie copiar//
+document.getElementById('copyErroIE').addEventListener('click', () => {
+  const textoIE = `TIPO DE CHAMADO: Problema
+
+MENSAGEM DE ERRO: IE INVALIDO
+
+CAUSA DO PROBLEMA: O PROBLEMA É CAUSADO POR CONTA QUE ESTÁ FALTANDO O IE DO CLIENTE NO CADASTRO DO CLIENTE OU O CLIENTE TEM IE DESABILITADO
+
+RESOLUÇÃO: COLOCAR O IE DO CLIENTE NO CADASTRO E AJUSTAR SE ELE É CONTRIBUINTE OU NÃO CONTRIBUINTE
+
+FEEDBACK DO CLIENTE: AGRADECIDO
+
+HUMOR DO CLIENTE: Bom
+
+UPSELL: Não
+
+MENSAGENS OU PRINT DE ERROS: Não`;
+
+  navigator.clipboard.writeText(textoIE).then(() => {
+    const msg = document.getElementById('copyMessage');
+    msg.style.opacity = '1';
+    setTimeout(() => { msg.style.opacity = '0'; }, 1500);
+  });
+});
