@@ -44,6 +44,18 @@ btnAtualizacoes.addEventListener('click', () => {
   btnAtualizacoes.classList.remove('btn-piscar');
 });
 
+// ---- Verifica automaticamente nova versão do site ----
+fetch('/version.json')
+  .then(res => res.json())
+  .then(data => {
+    if (data.versao !== VERSAO_ATUALIZACAO) {
+      // Atualiza variável e faz o botão piscar
+      VERSAO_ATUALIZACAO = data.versao;
+      checkBtnAtualizacoes();
+    }
+  })
+  .catch(err => console.warn('Não foi possível verificar a versão do site:', err));
+
 // ---- Copiar textos ----
 document.getElementById('copyBtn').addEventListener('click', () => {
   const ativo = document.querySelector('.tipo-chamado button.ativo').textContent;
@@ -202,6 +214,6 @@ MENSAGENS OU PRINT DE ERROS: Não`;
   });
 });
 
-// botão alertar att //
+
 
 
