@@ -1,0 +1,32 @@
+[
+  {
+    "erro": "Rejeição 204: Duplicidade de NF-e",
+    "mensagem": "Rejeição 204: Duplicidade de NF-e",
+    "causa": "Ocorre quando uma NF-e está autorizada na sefaz porem não retornou ao sistema que está autorizada ou já existi uma nota autorizada com a mesma serie e numeração.",
+    "resolucao": "Excluir nota com erro e importar xml da nota da sefaz autorizada, erro com serie e numeração trocar a serie ou a numeração e importar nota que já está autorizada na sefaz.",
+    "feedback": "Cliente compreendeu a situação e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Erro: IE Genérico",
+    "mensagem": "Rejeição: IE inválido",
+    "causa": "O problema é causado por conta que está faltando o ie do cliente no cadastro do cliente ou o cliente tem ie desabilitado",
+    "resolucao": "Colocar o ie do cliente no cadastro e ajustar se ele é contribuinte ou não contribuinte ou tirar o ie pois o cliente é não contribuinte",
+    "feedback": "Cliente agradeceu",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Duvida: Ajuda com NF-e de devolução",
+    "mensagem": "Ajudar cliente na NF-e de devolução",
+    "causa": "Cliente não sabe ainda preencher uma nota de devolução ou tem duvida no preenchimento.",
+    "resolucao": "Acompanhei o preenchimento junto com o cliente até a nota ser enviado ao governo e ficar autorizada.",
+    "feedback": "Cliente orientado sobre o processo e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  }
+]

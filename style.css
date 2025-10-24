@@ -17,6 +17,45 @@ body {
 }
 body.dark { background: var(--bg-dark); color: var(--text-dark); }
 
+/* --- Estilo refinado do bloco de erros comuns --- */
+#errosComuns {
+  background-color: #1b1b1b;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 6px 10px;
+  transition: all 0.25s ease;
+  font-size: 0.95rem;
+}
+
+#errosComuns:hover,
+#errosComuns:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 8px #0d6efd60;
+  background-color: #1f1f1f;
+}
+
+label[for="errosComuns"],
+label.form-label.text-info {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6dbbff;
+}
+
+/* ícone de engrenagem do título */
+label[for="errosComuns"]::before {
+  content: "⚙️";
+  font-size: 1rem;
+}
+
+/* Margem inferior ajustada para separar melhor do próximo campo */
+#errosComuns {
+  margin-bottom: 1px;
+}
+
 .form-container {
   max-width: 950px;
   margin: 0 auto;
@@ -112,4 +151,73 @@ li {
 
 .btn-piscar {
   animation: piscar 1s infinite;
+}
+.custom-select {
+  position: relative;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.custom-select .selected {
+  background-color: #1b1b1b;
+  color: #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 3px solid #333;
+}
+
+.custom-select .options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background-color: #1f1f1f;
+  z-index: 999;
+}
+
+.custom-select .options div {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.custom-select .options div:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+/* ---- AJUSTE DEFINITIVO PARA MODO CLARO ---- */
+body.light-mode .custom-select .selected {
+  background-color: #ffffff !important;
+  color: #222 !important;
+  border: 1px solid #ccc !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+}
+
+body.light-mode .custom-select .options {
+  background-color: #ffffff !important;
+  border: 1px solid #ccc !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+body.light-mode .custom-select .options div {
+  color: #222 !important;
+  background-color: #fff !important;
+}
+
+body.light-mode .custom-select .options div:hover {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+body.light-mode .custom-select {
+  background-color: #fff !important;
+}
+
+.conferir {
+  color: rgba(255, 166, 0, 0.788);
 }

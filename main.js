@@ -13,9 +13,11 @@ const iconSun = document.getElementById('iconSun');
 
 function applyTheme(theme) {
   document.body.classList.toggle('dark', theme === 'dark');
+  document.body.classList.toggle('light-mode', theme !== 'dark'); // garante que light-mode exista
   iconMoon.classList.toggle('d-none', theme === 'dark');
   iconSun.classList.toggle('d-none', theme !== 'dark');
 }
+
 
 let theme = localStorage.getItem('theme') || 'light';
 applyTheme(theme);
@@ -24,21 +26,18 @@ darkSwitch.addEventListener('click', () => {
   theme = theme === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', theme);
   applyTheme(theme);
-  
 });
 
 // ---- Botão de Novas Atualizações piscando ----
 const btnAtualizacoes = document.getElementById('novasAtualizacoes');
 const ATUALIZACAO_KEY = 'jaViuAtualizacao';
-const VERSAO_ATUALIZACAO = '23-10-2025'; // atualize sempre que tiver novidade
+let VERSAO_ATUALIZACAO = '24-10-2025'; // atualize sempre que tiver novidade
 
-// Se o usuário não viu essa versão, o botão pisca
 const jaViu = localStorage.getItem(ATUALIZACAO_KEY);
 if (jaViu !== VERSAO_ATUALIZACAO) {
   btnAtualizacoes.classList.add('btn-piscar');
 }
 
-// Ao clicar no botão, considera que viu a atualização
 btnAtualizacoes.addEventListener('click', () => {
   localStorage.setItem(ATUALIZACAO_KEY, VERSAO_ATUALIZACAO);
   btnAtualizacoes.classList.remove('btn-piscar');
@@ -49,9 +48,7 @@ fetch('/version.json')
   .then(res => res.json())
   .then(data => {
     if (data.versao !== VERSAO_ATUALIZACAO) {
-      // Atualiza variável e faz o botão piscar
       VERSAO_ATUALIZACAO = data.versao;
-      checkBtnAtualizacoes();
     }
   })
   .catch(err => console.warn('Não foi possível verificar a versão do site:', err));
@@ -64,7 +61,7 @@ document.getElementById('copyBtn').addEventListener('click', () => {
   if (ativo === 'Problema') {
     if (docNumber.value) texto += `NÚMERO DO DOCUMENTO: ${docNumber.value}\n\n`;
     if (errorMessage.value) texto += `MENSAGEM DE ERRO: ${errorMessage.value}\n\n`;
-    if (problemCause.value) texto += `CAUSA DO PROBLEMA: ${problemCause.value}\n\n`;
+    if (problemCause.value) texto += `CAUSA DO PROBLEMA / DUVIDA: ${problemCause.value}\n\n`;
     if (resolution.value) texto += `RESOLUÇÃO: ${resolution.value}\n\n`;
   } else if (ativo === 'Dúvida') {
     if (duvidaCliente.value) texto += `DÚVIDA DO CLIENTE: ${duvidaCliente.value}\n\n`;
@@ -88,7 +85,6 @@ document.getElementById('copyBtn').addEventListener('click', () => {
     msg.style.opacity = '1';
     setTimeout(() => { msg.style.opacity = '0'; }, 1500);
 
-    // Limpar campos
     document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
   });
 });
@@ -108,9 +104,9 @@ camposAutoResize.forEach(id => {
   }
 });
 
-// ---- Função de formatação de texto reconhecido ----
-function formatarTextoReconhecido(texto) {
-  return texto
+// ---- Formatação de texto reconhecido ----
+function formatarTextoReconhecido(texto, campoVazio) {
+  texto = texto
     .replace(/\bvírgula\b/gi, ',')
     .replace(/\bponto e vírgula\b/gi, ';')
     .replace(/\bponto\b/gi, '.')
@@ -121,12 +117,25 @@ function formatarTextoReconhecido(texto) {
     .replace(/\bcli\b/gi, 'cliente')
     .replace(/\bobs\b/gi, 'observação')
     .replace(/\bnum\b/gi, 'número')
+    .replace(/\bmanifesto\b/gi, 'MDF-e')
+    .replace(/\bcupom fiscal\b/gi, 'NFC-e')
+    .replace(/\bdanfe\b/gi, 'danfe')
+    .replace(/\bicms\b/gi, 'icms')
+    .replace(/\bpis\b/gi, 'pis')
+    .replace(/\bconfins\b/gi, 'cofins')
     .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^./, c => c.toUpperCase());
+    .trim();
+
+  // Primeira letra maiúscula se o campo estiver vazio
+  if (campoVazio && texto.length > 0) {
+    texto = texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
+  return texto;
 }
 
-// ---- Microfone Web Speech API ----
+
+// ---- Microfone (Web Speech API) ----
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognition) {
@@ -159,6 +168,7 @@ if (SpeechRecognition) {
     recognition.continuous = true;
 
     let gravando = false;
+    let ultimoTexto = '';
 
     micBtn.addEventListener('click', () => {
       if (!gravando) {
@@ -174,10 +184,25 @@ if (SpeechRecognition) {
       }
     });
 
+    // --- CORREÇÃO: Evita repetição de texto ---
     recognition.onresult = (event) => {
-      let transcript = Array.from(event.results).map(r => r[0].transcript).join(' ');
-      transcript = formatarTextoReconhecido(transcript);
-      campo.value += (campo.value ? ' ' : '') + transcript;
+      const startIndex = event.resultIndex || 0;
+      let novoTrecho = '';
+
+      for (let i = startIndex; i < event.results.length; i++) {
+        novoTrecho += event.results[i][0].transcript;
+      }
+
+      novoTrecho = novoTrecho.trim();
+      if (!novoTrecho) return;
+
+      if (novoTrecho === ultimoTexto) return;
+
+      const campoVazio = campo.value.trim().length === 0;
+      novoTrecho = formatarTextoReconhecido(novoTrecho, campoVazio);
+
+      campo.value += (campo.value ? ' ' : '') + novoTrecho;
+      ultimoTexto = novoTrecho;
       autoResize(campo);
     };
 
@@ -211,9 +236,53 @@ MENSAGENS OU PRINT DE ERROS: Não`;
     const msg = document.getElementById('copyMessage');
     msg.style.opacity = '1';
     setTimeout(() => { msg.style.opacity = '0'; }, 1500);
-  });
 });
+});
+// ---- Erros Comuns Custom Select ----
+fetch('errosComuns.json')
+  .then(res => res.json())
+  .then(erros => {
+    const customSelect = document.getElementById('customSelect');
+    const selected = customSelect.querySelector('.selected');
+    const optionsContainer = customSelect.querySelector('.options');
 
+    // Preenche as opções
+    erros.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.textContent = item.erro;
+      div.dataset.index = index;
+      optionsContainer.appendChild(div);
 
+      div.addEventListener('click', () => {
+        selected.textContent = item.erro;
+        optionsContainer.classList.add('d-none');
 
+        // Preenche os campos automaticamente
+        document.getElementById('errorMessage').value = item.mensagem || '';
+        document.getElementById('problemCause').value = item.causa || '';
+        document.getElementById('resolution').value = item.resolucao || '';
+        document.getElementById('clientFeedback').value = item.feedback || '';
+        document.getElementById('humorSelection').value = item.humor || 'Bom';
+        document.querySelector(`input[name="upsell"][value="${item.upsell}"]`).checked = true;
+        document.querySelector(`input[name="captura"][value="${item.captura}"]`).checked = true;
 
+        ['errorMessage','problemCause','resolution','clientFeedback'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) autoResize(el);
+        });
+      });
+    });
+
+    // Toggle dropdown
+    selected.addEventListener('click', () => {
+      optionsContainer.classList.toggle('d-none');
+    });
+
+    // Fechar dropdown se clicar fora
+    document.addEventListener('click', (e) => {
+      if (!customSelect.contains(e.target)) {
+        optionsContainer.classList.add('d-none');
+      }
+    });
+  })
+  .catch(err => console.error('Erro ao carregar erros comuns:', err));
