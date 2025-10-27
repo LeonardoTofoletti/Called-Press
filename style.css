@@ -51,7 +51,7 @@ label[for="errosComuns"]::before {
   font-size: 1rem;
 }
 
-/* Margem inferior ajustada para separar melhor do próximo campo */
+/* Margem inferior ajustada */
 #errosComuns {
   margin-bottom: 1px;
 }
@@ -85,6 +85,26 @@ body.dark textarea, body.dark input, body.dark select {
   background-color: #2a2a2a !important;
   color: #eee !important;
 }
+/* --- Corrige cor da setinha no modo claro --- */
+body.light-mode .custom-select .selected {
+  color: #222 !important;
+}
+
+body.light-mode .custom-select .selected:hover {
+  color: #0d6efd !important; /* mesma cor do hover padrão */
+  background-color: rgba(13,110,253,0.05) !important;
+  box-shadow: 0 0 0 2px rgba(13,110,253,0.2);
+}
+
+body.light-mode .custom-select .selected::after {
+  border-color: currentColor !important;
+  opacity: 0.6;
+}
+
+body.light-mode .custom-select .selected:hover::after {
+  opacity: 1;
+}
+
 
 ::placeholder { color: #666 !important; }
 body.dark ::placeholder { color: var(--placeholder-dark) !important; }
@@ -131,33 +151,25 @@ textarea { padding-right: 45px !important; }
   z-index: 9999;
 }
 
-.modal-body {
-  color: black;
-
-}
-
-h5 {
-  color: black;
-}
-
-li {
-  margin-left: 10px;
-}
+.modal-body { color: black; }
+h5 { color: black; }
+li { margin-left: 10px; }
 
 @keyframes piscar {
-  0%, 100% { background-color: #0dcaf0; } /* cor normal do btn-info */
-  50% { background-color: #ffc107; } /* cor de destaque */
+  0%, 100% { background-color: #0dcaf0; }
+  50% { background-color: #ffc107; }
 }
 
-.btn-piscar {
-  animation: piscar 1s infinite;
-}
+.btn-piscar { animation: piscar 1s infinite; }
+
+/* ------------------- CUSTOM SELECT ------------------- */
 .custom-select {
   position: relative;
   width: 100%;
   font-size: 0.95rem;
 }
 
+/* Campo selecionado */
 .custom-select .selected {
   background-color: #1b1b1b;
   color: #e0e0e0;
@@ -165,8 +177,53 @@ li {
   border-radius: 10px;
   cursor: pointer;
   border: 3px solid #333;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  padding-right: 36px; /* espaço pra setinha */
 }
 
+/* Placeholder cinza */
+.custom-select .selected.placeholder {
+  color: #888;
+}
+[data-bs-theme="dark"] .custom-select .selected.placeholder {
+  color: #bbb;
+}
+
+/* Hover/foco */
+.custom-select .selected:hover,
+.custom-select .selected:focus {
+  background-color: rgba(255,255,255,0.05);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+}
+
+/* Setinha igual ao select nativo */
+.custom-select .selected::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 0.55em;
+  height: 0.55em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+.custom-select .selected:hover::after { opacity: 1; }
+
+/* Check verde quando tiver valor */
+.custom-select .selected.has-value::before {
+  content: "✓";
+  position: absolute;
+  right: 28px;
+  color: #28a745;
+  opacity: 1;
+}
+
+/* Lista de opções */
 .custom-select .options {
   position: absolute;
   top: 100%;
@@ -178,46 +235,48 @@ li {
   border: 1px solid #333;
   background-color: #1f1f1f;
   z-index: 999;
+  transition: all 0.2s ease;
+  transform: translateY(-5px);
+  opacity: 0;
+  pointer-events: none;
+}
+.custom-select .options:not(.d-none) {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
+/* Opções individuais */
 .custom-select .options div {
   padding: 8px 12px;
   cursor: pointer;
+  color: #e0e0e0;
 }
-
 .custom-select .options div:hover {
   background-color: #0d6efd;
   color: #fff;
 }
 
-/* ---- AJUSTE DEFINITIVO PARA MODO CLARO ---- */
+/* ---- Ajuste modo claro ---- */
 body.light-mode .custom-select .selected {
   background-color: #ffffff !important;
   color: #222 !important;
   border: 1px solid #ccc !important;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
 }
-
 body.light-mode .custom-select .options {
   background-color: #ffffff !important;
   border: 1px solid #ccc !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
-
 body.light-mode .custom-select .options div {
   color: #222 !important;
   background-color: #fff !important;
 }
-
 body.light-mode .custom-select .options div:hover {
   background-color: #0d6efd !important;
   color: #fff !important;
 }
+body.light-mode .custom-select { background-color: #fff !important; }
 
-body.light-mode .custom-select {
-  background-color: #fff !important;
-}
-
-.conferir {
-  color: rgba(255, 166, 0, 0.788);
-}
+.conferir { color: rgba(255, 166, 0, 0.788); }

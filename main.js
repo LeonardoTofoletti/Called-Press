@@ -31,7 +31,7 @@ darkSwitch.addEventListener('click', () => {
 // ---- Botão de Novas Atualizações piscando ----
 const btnAtualizacoes = document.getElementById('novasAtualizacoes');
 const ATUALIZACAO_KEY = 'jaViuAtualizacao';
-let VERSAO_ATUALIZACAO = '24-10-2025'; // atualize sempre que tiver novidade
+let VERSAO_ATUALIZACAO = '27-10-2025'; // atualize sempre que tiver novidade
 
 const jaViu = localStorage.getItem(ATUALIZACAO_KEY);
 if (jaViu !== VERSAO_ATUALIZACAO) {
@@ -286,3 +286,4 @@ fetch('errosComuns.json')
     });
   })
   .catch(err => console.error('Erro ao carregar erros comuns:', err));
+
