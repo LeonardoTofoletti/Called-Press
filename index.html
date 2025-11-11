@@ -59,10 +59,10 @@
           </div>
           <div class="col-12">
             <label class="form-label">Causa do Problema / Duvida</label>
-            <textarea id="problemCause" rows="2" class="form-control" placeholder="Descreva o que ocasionou o erro ou situação ou a duvida"></textarea>
+            <textarea autocomplete="on" id="problemCause" rows="2" class="form-control" placeholder="Descreva o que ocasionou o erro ou situação ou a duvida"></textarea>
           </div>
           <div class="col-12">
-            <label class="form-label">Resolução</label>
+            <label autocomplete="on" class="form-label">Resolução</label>
             <textarea id="resolution" rows="2" class="form-control" placeholder="Descreva a resolução do problema"></textarea>
           </div>
         </div>
@@ -71,11 +71,11 @@
       <div id="tela-duvida" class="tela">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label">Dúvida do cliente</label>
+            <label autocomplete="on" class="form-label">Dúvida do cliente</label>
             <textarea id="duvidaCliente" class="form-control" rows="2" placeholder="Descreva a dúvida do cliente"></textarea>
           </div>
           <div class="col-12">
-            <label class="form-label">Explicação</label>
+            <label autocomplete="on" class="form-label">Explicação</label>
             <textarea id="duvidaExplicacao" class="form-control" rows="2" placeholder="Descreva sua explicação para o cliente"></textarea>
           </div>
         </div>
@@ -84,7 +84,7 @@
       <div id="tela-contato" class="tela">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label">Relato do Contato</label>
+            <label autocomplete="on" class="form-label">Relato do Contato</label>
             <textarea id="contatoRelato" class="form-control" rows="2" placeholder="Descreva o relato do contato com o cliente"></textarea>
           </div>
         </div>
@@ -93,7 +93,7 @@
       <!-- CAMPOS COMUNS -->
       <div class="row g-3 mt-2 align-items-center">
         <div class="col-12">
-          <label class="form-label">Feedback do Cliente</label>
+          <label autocomplete="on" class="form-label">Feedback do Cliente</label>
           <textarea id="clientFeedback" class="form-control" rows="2" placeholder="Satisfação do cliente | Compreendeu ou não a solução, Nome e número do(s) envolvidos"></textarea>
         </div>
         <div class="col-md-3">
@@ -137,7 +137,8 @@
         <div class="footer-buttons">
           <button id="novasAtualizacoes" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#creditosModal" tabindex="-1"><i class="bi bi-info"></i> Novas Atualizações</button>
           <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#diretriz" tabindex="-1">Créditos</button>
-          <button id="copyErroIE" class="btn btn-warning" tabindex="-1">ERRO DE IE <i class="bi bi-clipboard"></i></button>
+          <button type="button" id="limparHistorico" class="btn-limpar">🧹 Limpar Cache</button>
+          <div id="toast" class="toast-msg"></div>
         </div>
         <button id="copyBtn" class="btn btn-primary">Copiar textos <i class="bi bi-copy"></i></button>
       </div>
@@ -153,16 +154,9 @@
           <button class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <ul>Atualização dia 23/10/2025</ul>
-          <li>Melhoria de microfone, agora entende as abreviações cfop e nfe</li>
-          <li>Ao ligar o microfone pode deixar ativado e ficar falando depois aperte para desligar</li>
-          <li>Agora adiciona ponto ou virgula se falar</li>
-          <br>
-          <ul>Atualização dia 27/10/2025</ul>
-          <li>Novo campo: Erros comuns autopreenchimento</li>
-          <li>Ele preenche os campos automaticos referente ao erro escolhido</li>
-          <li>Melhorias no micrfone entende melhor as abreviações</li>
-          <li>Otimização ao usar o site pelo tab do campo de upsell vai direto para o botão copiar</li>
+          <ul>Atualização dia 11/11/2025</ul>
+          <li>Adicionado cache aos campos de preenchimento ficara salvo sua ultima coisa que escreveu</li>
+          <li>Adicionado botão limpar cache dos texto que o navegador salva </li>
         </div>
       </div>
     </div>

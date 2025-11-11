@@ -214,31 +214,6 @@ if (SpeechRecognition) {
   console.warn("Reconhecimento de voz não suportado neste navegador.");
 }
 
-// ---- Copiar texto de erro IE ----
-document.getElementById('copyErroIE').addEventListener('click', () => {
-  const textoIE = `TIPO DE CHAMADO: Problema
-
-MENSAGEM DE ERRO: IE INVALIDO
-
-CAUSA DO PROBLEMA: O PROBLEMA É CAUSADO POR CONTA QUE ESTÁ FALTANDO O IE DO CLIENTE NO CADASTRO DO CLIENTE OU O CLIENTE TEM IE DESABILITADO
-
-RESOLUÇÃO: COLOCAR O IE DO CLIENTE NO CADASTRO E AJUSTAR SE ELE É CONTRIBUINTE OU NÃO CONTRIBUINTE
-
-FEEDBACK DO CLIENTE: AGRADECIDO
-
-HUMOR DO CLIENTE: Bom
-
-UPSELL: Não
-
-MENSAGENS OU PRINT DE ERROS: Não`;
-
-  navigator.clipboard.writeText(textoIE).then(() => {
-    const msg = document.getElementById('copyMessage');
-    msg.style.opacity = '1';
-    setTimeout(() => { msg.style.opacity = '0'; }, 1500);
-});
-});
-// ---- Erros Comuns Custom Select ----
 fetch('errosComuns.json')
   .then(res => res.json())
   .then(erros => {
@@ -266,6 +241,20 @@ fetch('errosComuns.json')
         document.querySelector(`input[name="upsell"][value="${item.upsell}"]`).checked = true;
         document.querySelector(`input[name="captura"][value="${item.captura}"]`).checked = true;
 
+        // 🔽 Adiciona automaticamente os valores preenchidos no cache
+        ['errorMessage', 'problemCause', 'resolution', 'clientFeedback'].forEach(id => {
+          const campo = document.getElementById(id);
+          if (campo && campo.value.trim().length > 0) {
+            const key = `cache_${campo.id}`;
+            let values = JSON.parse(localStorage.getItem(key) || "[]");
+            if (!values.includes(campo.value.trim())) {
+              values.push(campo.value.trim());
+              if (values.length > 20) values = values.slice(-20); // limite
+              localStorage.setItem(key, JSON.stringify(values));
+            }
+          }
+        });
+
         ['errorMessage','problemCause','resolution','clientFeedback'].forEach(id => {
           const el = document.getElementById(id);
           if (el) autoResize(el);
@@ -287,3 +276,146 @@ fetch('errosComuns.json')
   })
   .catch(err => console.error('Erro ao carregar erros comuns:', err));
 
+document.addEventListener("DOMContentLoaded", () => {
+  const campos = document.querySelectorAll("textarea, input[type='text']");
+
+  campos.forEach(campo => {
+    const key = `cache_${campo.id}`;
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "relative";
+    campo.parentNode.insertBefore(wrapper, campo);
+    wrapper.appendChild(campo);
+
+    // --- Cria dropdown de sugestões (substituir o bloco antigo por este) ---
+    const list = document.createElement("div");
+
+    // estilos base (posição/scroll/etc)
+    list.style.position = "absolute";
+    list.style.top = "100%";
+    list.style.left = "0";
+    list.style.right = "0";
+    list.style.borderRadius = "6px";
+    list.style.zIndex = "1000";
+    list.style.display = "none";
+    list.style.maxHeight = "140px";
+    list.style.overflowY = "auto";
+    list.style.fontSize = "14px";
+    list.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+    list.style.backdropFilter = "blur(4px)";
+
+    // função que aplica o visual correto dependendo do tema
+    function applyListTheme() {
+      // detecta tema com várias estratégias:
+      // 1) classe explícita 'dark' no body
+      // 2) storage.theme (sua lógica de troca grava isso)
+      // 3) classe 'light-mode' (se presente)
+      // 4) fallback pelo prefers-color-scheme
+      const classHasDark = document.body.classList.contains("dark");
+      const classHasLightMode = document.body.classList.contains("light-mode");
+      const storageTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+      const isDark = classHasDark || storageTheme === "dark" || (!classHasLightMode && (prefersDark && !classHasLightMode ? prefersDark : false));
+    
+      if (isDark) {
+        // tema escuro
+        list.style.background = "#2c2c2c";
+        list.style.color = "#fff";
+        list.style.border = "1px solid #555";
+        list.style.boxShadow = "0 2px 8px rgba(0,0,0,0.6)";
+      } else {
+        // tema claro - branco azulado suave
+        list.style.background = "#f5f9ff";
+        list.style.color = "#0a0a0a";
+        list.style.border = "1px solid #ccd9ff";
+        list.style.boxShadow = "0 2px 6px rgba(0,0,0,0.08)";
+      }
+    }
+
+    // aplicar inicialmente
+    applyListTheme();
+
+    // observar mudanças de classe no body (quando você alterna sem reload)
+    const bodyObserverForList = new MutationObserver(() => {
+      applyListTheme();
+    });
+    bodyObserverForList.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    // ouvir storage (caso theme seja atualizado e salvo em localStorage)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'theme') applyListTheme();
+    });
+
+    wrapper.appendChild(list);
+
+
+    campo.addEventListener("focus", () => {
+      const values = JSON.parse(localStorage.getItem(key) || "[]");
+      list.innerHTML = "";
+      if (values.length > 0) {
+        values.slice(-20).reverse().forEach(value => {
+        const item = document.createElement("div");
+        item.textContent = value;
+        item.style.padding = "6px 10px";
+        item.style.cursor = "pointer";
+        item.style.transition = "background 0.2s";
+
+        // Hover com cor de acordo com o tema
+        item.addEventListener("mouseenter", () => {
+          const isDark = document.body.classList.contains("dark") || localStorage.getItem("theme") === "dark";
+          item.style.background = isDark ? "#333" : "#e6efff"; // azul clarinho no tema claro
+        });
+
+        item.addEventListener("mouseleave", () => {
+          item.style.background = "transparent";
+        });
+
+        item.addEventListener("click", () => {
+          campo.value = value;
+          list.style.display = "none";
+        });
+
+        list.appendChild(item);
+        ;
+
+        });
+        list.style.display = "block";
+      }
+    });
+
+    document.addEventListener("click", e => {
+      if (!wrapper.contains(e.target)) list.style.display = "none";
+    });
+
+    campo.addEventListener("blur", () => {
+      const value = campo.value.trim();
+      if (value.length > 0) {
+        let values = JSON.parse(localStorage.getItem(key) || "[]");
+        if (!values.includes(value)) {
+          values.push(value);
+          if (values.length > 20) values = values.slice(-20);
+          localStorage.setItem(key, JSON.stringify(values));
+        }
+      }
+    });
+  });
+
+  // Função toast (mesma do botão de copiar)
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+  }
+
+  // --- Botão limpar histórico ---
+  const limparBtn = document.getElementById("limparHistorico");
+  if (limparBtn) {
+    limparBtn.addEventListener("click", () => {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith("cache_")) localStorage.removeItem(key);
+      });
+      showToast("🧹 Cache apagado!");
+    });
+  }
+});
