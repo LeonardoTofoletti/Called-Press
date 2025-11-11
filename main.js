@@ -274,7 +274,7 @@ fetch('errosComuns.json')
       }
     });
   })
-  .catch(err => console.error('Erro ao carregar erros comuns:', err));
+.catch(err => console.error('Erro ao carregar erros comuns:', err));
 
 document.addEventListener("DOMContentLoaded", () => {
   const campos = document.querySelectorAll("textarea, input[type='text']");
@@ -286,10 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
     campo.parentNode.insertBefore(wrapper, campo);
     wrapper.appendChild(campo);
 
-    // --- Cria dropdown de sugestões (substituir o bloco antigo por este) ---
     const list = document.createElement("div");
-
-    // estilos base (posição/scroll/etc)
     list.style.position = "absolute";
     list.style.top = "100%";
     list.style.left = "0";
@@ -302,29 +299,17 @@ document.addEventListener("DOMContentLoaded", () => {
     list.style.fontSize = "14px";
     list.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
     list.style.backdropFilter = "blur(4px)";
+    wrapper.appendChild(list);
 
-    // função que aplica o visual correto dependendo do tema
+    // Detecta tema atual
     function applyListTheme() {
-      // detecta tema com várias estratégias:
-      // 1) classe explícita 'dark' no body
-      // 2) storage.theme (sua lógica de troca grava isso)
-      // 3) classe 'light-mode' (se presente)
-      // 4) fallback pelo prefers-color-scheme
-      const classHasDark = document.body.classList.contains("dark");
-      const classHasLightMode = document.body.classList.contains("light-mode");
-      const storageTheme = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-      const isDark = classHasDark || storageTheme === "dark" || (!classHasLightMode && (prefersDark && !classHasLightMode ? prefersDark : false));
-    
+      const isDark = document.body.classList.contains("dark") || localStorage.getItem("theme") === "dark";
       if (isDark) {
-        // tema escuro
         list.style.background = "#2c2c2c";
         list.style.color = "#fff";
         list.style.border = "1px solid #555";
         list.style.boxShadow = "0 2px 8px rgba(0,0,0,0.6)";
       } else {
-        // tema claro - branco azulado suave
         list.style.background = "#f5f9ff";
         list.style.color = "#0a0a0a";
         list.style.border = "1px solid #ccd9ff";
@@ -332,42 +317,39 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // aplicar inicialmente
     applyListTheme();
-
-    // observar mudanças de classe no body (quando você alterna sem reload)
-    const bodyObserverForList = new MutationObserver(() => {
-      applyListTheme();
-    });
+    const bodyObserverForList = new MutationObserver(() => applyListTheme());
     bodyObserverForList.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-    // ouvir storage (caso theme seja atualizado e salvo em localStorage)
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'theme') applyListTheme();
-    });
+    // --- Lógica de sugestões ---
+    let currentIndex = -1; // índice da sugestão ativa
 
-    wrapper.appendChild(list);
-
-
-    campo.addEventListener("focus", () => {
+    function mostrarSugestoes(filtro = "") {
       const values = JSON.parse(localStorage.getItem(key) || "[]");
       list.innerHTML = "";
-      if (values.length > 0) {
-        values.slice(-20).reverse().forEach(value => {
+
+      const filtradas = values
+        .filter(v => v.toLowerCase().includes(filtro.toLowerCase()))
+        .slice(-20)
+        .reverse();
+
+      if (filtradas.length === 0) {
+        list.style.display = "none";
+        return;
+      }
+
+      filtradas.forEach((value, i) => {
         const item = document.createElement("div");
         item.textContent = value;
         item.style.padding = "6px 10px";
         item.style.cursor = "pointer";
         item.style.transition = "background 0.2s";
 
-        // Hover com cor de acordo com o tema
         item.addEventListener("mouseenter", () => {
-          const isDark = document.body.classList.contains("dark") || localStorage.getItem("theme") === "dark";
-          item.style.background = isDark ? "#333" : "#e6efff"; // azul clarinho no tema claro
+          item.style.background = localStorage.getItem("theme") === "dark" ? "#333" : "#e6efff";
         });
-
         item.addEventListener("mouseleave", () => {
-          item.style.background = "transparent";
+          if (i !== currentIndex) item.style.background = "transparent";
         });
 
         item.addEventListener("click", () => {
@@ -376,12 +358,50 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         list.appendChild(item);
-        ;
+      });
 
-        });
-        list.style.display = "block";
+      list.style.display = "block";
+      currentIndex = -1;
+    }
+
+    campo.addEventListener("focus", () => mostrarSugestoes(campo.value));
+
+    campo.addEventListener("input", () => {
+      mostrarSugestoes(campo.value);
+    });
+
+    // --- Navegação com setas e Enter ---
+    campo.addEventListener("keydown", e => {
+      const items = Array.from(list.children);
+      if (list.style.display === "none" || items.length === 0) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        currentIndex = (currentIndex + 1) % items.length;
+        atualizarDestaque(items);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        currentIndex = (currentIndex - 1 + items.length) % items.length;
+        atualizarDestaque(items);
+      } else if (e.key === "Enter") {
+        if (currentIndex >= 0 && currentIndex < items.length) {
+          e.preventDefault();
+          campo.value = items[currentIndex].textContent;
+          list.style.display = "none";
+        }
       }
     });
+
+    function atualizarDestaque(items) {
+      items.forEach((item, i) => {
+        const isDark = document.body.classList.contains("dark") || localStorage.getItem("theme") === "dark";
+        if (i === currentIndex) {
+          item.style.background = isDark ? "#444" : "#cfe0ff";
+        } else {
+          item.style.background = "transparent";
+        }
+      });
+    }
 
     document.addEventListener("click", e => {
       if (!wrapper.contains(e.target)) list.style.display = "none";
@@ -400,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Função toast (mesma do botão de copiar)
+  // --- Toast ---
   function showToast(msg) {
     const toast = document.getElementById("toast");
     toast.textContent = msg;
@@ -419,3 +439,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
