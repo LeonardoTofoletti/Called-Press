@@ -28,5 +28,26 @@
     "humor": "Bom",
     "upsell": "Não",
     "captura": "Não"
+  },
+  {
+    "erro": "Rejeição: Produto com NCM inválido",
+    "mensagem": "Rejeição: NCM inválido ou ausente",
+    "causa": "Código NCM incorreto ou faltante no cadastro do produto.",
+    "resolucao": "Atualizar NCM no cadastro do produto e reemitir a nota.",
+    "feedback": "Cliente entendeu o problema e agradeceu",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "ERRO: Schema XML",
+    "mensagem": "Erro de preenchimento",
+    "causa": "Erro de preenchimento em algum campo dentro do sistema exemplos IE, ENDEREÇO, CADASTRO DO CLEINTE, IMPOSTOS. ",
+    "resolucao": "Verifiquei campos com preenchimento incorreto e ajustei",
+    "feedback": "Expliquei ao cliente onde estava o erro no preenchimento ela(e) agradeceu",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
   }
+  
 ]

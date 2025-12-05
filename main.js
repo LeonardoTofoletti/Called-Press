@@ -276,6 +276,9 @@ fetch('errosComuns.json')
   })
 .catch(err => console.error('Erro ao carregar erros comuns:', err));
 
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const campos = document.querySelectorAll("textarea, input[type='text']");
 
@@ -440,3 +443,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+async function enviarParaGemini() {
+  const texto = document.getElementById("problemCause").value;
+
+  const resp = await fetch("/api/gemini", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: texto })
+  });
+
+  const data = await resp.json();
+
+  console.log("Resposta do backend:", data);
+
+  const resposta =
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+    "Nenhuma resposta recebida.";
+
+  document.getElementById("resultadoIA").innerText = resposta;
+}
