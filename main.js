@@ -446,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function enviarParaGemini() {
   const texto = document.getElementById("problemCause").value;
 
-  const resp = await fetch("/api/gemini", {
+  const resp = await fetch("https://called-press.vercel.app/api/gemini", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt: texto })
