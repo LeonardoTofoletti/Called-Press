@@ -443,22 +443,55 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-async function enviarParaGemini() {
-  const texto = document.getElementById("problemCause").value;
+// =======================
+// Correção automática com Gemini
+// =======================
+async function corrigirTexto(campoId) {
+  const campo = document.getElementById(campoId);
+  const textoOriginal = campo.value.trim();
 
-  const resp = await fetch("https://called-press.vercel.app/api/gemini", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: texto })
-  });
+  if (textoOriginal.length < 5) return; // ignora textos muito curtos
 
-  const data = await resp.json();
+  try {
+    const resp = await fetch("/api/gemini", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt:
+          "Corrija ortografia, clareza e gramática deste texto. Mantenha o sentido original e responda SOMENTE com o texto corrigido:\n\n" +
+          textoOriginal
+      })
+    });
 
-  console.log("Resposta do backend:", data);
+    const data = await resp.json();
+    const textoCorrigido = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-  const resposta =
-    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-    "Nenhuma resposta recebida.";
-
-  document.getElementById("resultadoIA").innerText = resposta;
+    if (textoCorrigido) {
+      campo.value = textoCorrigido.trim();
+    }
+  } catch (e) {
+    console.error("Erro ao corrigir texto:", e);
+  }
 }
+
+// =======================
+// Lista dos campos que terão correção automática
+// =======================
+const camposParaCorrigir = [
+  "errorMessage",
+  "problemCause",
+  "resolution",
+  "clientFeedback",
+  "upsellDesc",
+  "duvidaCliente",
+  "duvidaExplicacao",
+  "contatoRelato",
+];
+
+// Ativa correção ao sair do campo
+camposParaCorrigir.forEach(id => {
+  const campo = document.getElementById(id);
+  if (campo) {
+    campo.addEventListener("blur", () => corrigirTexto(id));
+  }
+});
