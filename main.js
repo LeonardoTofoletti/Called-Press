@@ -443,4 +443,62 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
+    const campos = {
+        docNumber: document.getElementById("docNumber")?.value || "",
+        errorMessage: document.getElementById("errorMessage")?.value || "",
+        problemCause: document.getElementById("problemCause")?.value || "",
+        resolution: document.getElementById("resolution")?.value || "",
+        duvidaCliente: document.getElementById("duvidaCliente")?.value || "",
+        duvidaExplicacao: document.getElementById("duvidaExplicacao")?.value || "",
+        contatoRelato: document.getElementById("contatoRelato")?.value || "",
+        clientFeedback: document.getElementById("clientFeedback")?.value || "",
+        upsellDesc: document.getElementById("upsellDesc")?.value || ""
+    };
+
+    // Monta o prompt para correção de TODOS os campos
+    const prompt = `
+Você é um corretor de texto profissional. Corrija ortografia, clareza e pontuação.
+Não altere o significado e devolva em JSON limpo.
+
+Texto para correção:
+${JSON.stringify(campos, null, 2)}
+    `;
+
+    try {
+        const resposta = await fetch("/api/gemini", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt })
+        });
+
+        const data = await resposta.json();
+
+        // Extrai o texto corrigido da resposta do Gemini
+        const output = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+        // Tenta converter de volta para JSON
+        let corrigido;
+        try {
+            corrigido = JSON.parse(output);
+        } catch {
+            alert("A IA retornou um formato inesperado. Tente novamente.");
+            console.error("Retorno da IA:", output);
+            return;
+        }
+
+        // Aplica os textos nos campos
+        Object.entries(corrigido).forEach(([id, valor]) => {
+            const campo = document.getElementById(id);
+            if (campo) campo.value = valor;
+        });
+
+        // Feedback ao usuário
+        alert("Textos corrigidos com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro:", erro);
+        alert("Falha ao corrigir textos.");
+    }
+});
 
