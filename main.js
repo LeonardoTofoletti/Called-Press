@@ -443,141 +443,112 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// --- CORRIGIR TODOS OS CAMPOS COM IA (versão mais robusta) ---
-document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
-  const campos = {
-    mensagemErro: document.getElementById("errorMessage").value,
-    causa: document.getElementById("problemCause").value,
-    resolucao: document.getElementById("resolution").value,
-    feedback: document.getElementById("clientFeedback").value,
-    upsell: document.getElementById("upsellDesc").value,
-    duvidaCliente: document.getElementById("duvidaCliente")?.value || "",
-    duvidaExplicacao: document.getElementById("duvidaExplicacao")?.value || "",
-    contatoRelato: document.getElementById("contatoRelato")?.value || ""
-  };
-
-  // prompt reforçado e com exemplo — ajuda o modelo a responder só com JSON
-  const prompt = `
-Você receberá textos de vários campos. CORRIJA ortografia, gramática e clareza, mantendo o sentido.
-RESPONDA APENAS com UM ÚNICO JSON válido (sem texto extra) no formato exatamente igual ao exemplo.
-Se algum campo estiver vazio, retorne string vazia.
-
-Exemplo de saída:
-{
-  "mensagemErro": "texto corrigido",
-  "causa": "texto corrigido",
-  "resolucao": "texto corrigido",
-  "feedback": "texto corrigido",
-  "upsell": "texto corrigido",
-  "duvidaCliente": "texto corrigido",
-  "duvidaExplicacao": "texto corrigido",
-  "contatoRelato": "texto corrigido"
+// =============================================
+// EXTRAI TEXTO ENTRE TAGS COMO [ERRO] ... [FIM]
+// =============================================
+function extrair(tag, texto) {
+  const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[FIM_${tag}\\]`, "i");
+  const match = texto.match(regex);
+  return match ? match[1].trim() : "";
 }
 
-Agora corrija os seguintes conteúdos e retorne apenas o JSON:
+// =============================================
+// EVENTO DO BOTÃO QUE CORRIGE TUDO DE UMA VEZ
+// =============================================
+document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
 
-MENSAGEM DE ERRO:
-${campos.mensagemErro}
+  const campos = {
+    ERRO: document.getElementById("errorMessage").value,
+    CAUSA: document.getElementById("problemCause").value,
+    RESOLUCAO: document.getElementById("resolution").value,
+    FEEDBACK: document.getElementById("clientFeedback").value,
+    UPSELL: document.getElementById("upsellDesc").value,
+    DUVIDA: document.getElementById("duvidaCliente").value,
+    EXPLICACAO: document.getElementById("duvidaExplicacao").value,
+    CONTATO: document.getElementById("contatoRelato").value
+  };
 
-CAUSA:
-${campos.causa}
-
-RESOLUÇÃO:
-${campos.resolucao}
-
-FEEDBACK:
-${campos.feedback}
-
-UPSELL:
-${campos.upsell}
-
-DÚVIDA CLIENTE:
-${campos.duvidaCliente}
-
-EXPLICAÇÃO:
-${campos.duvidaExplicacao}
-
-RELATO:
-${campos.contatoRelato}
-`.trim();
+  const btn = document.getElementById("btnCorrigirTudo");
+  const original = btn.innerHTML;
+  btn.innerHTML = "Corrigindo...";
+  btn.disabled = true;
 
   try {
-    // Chamada ao backend
-    const resp = await fetch("/api/gemini", {
+    const prompt =
+      `Você irá corrigir textos escritos por um atendente. 
+A saída deve ser exatamente assim:
+
+[ERRO]
+texto corrigido
+[FIM_ERRO]
+
+[CAUSA]
+texto corrigido
+[FIM_CAUSA]
+
+[RESOLUCAO]
+texto corrigido
+[FIM_RESOLUCAO]
+
+[FEEDBACK]
+texto corrigido
+[FIM_FEEDBACK]
+
+[UPSELL]
+texto corrigido
+[FIM_UPSELL]
+
+[DUVIDA]
+texto corrigido
+[FIM_DUVIDA]
+
+[EXPLICACAO]
+texto corrigido
+[FIM_EXPLICACAO]
+
+[CONTATO]
+texto corrigido
+[FIM_CONTATO]
+
+Agora os textos:
+
+ERRO: ${campos.ERRO}
+CAUSA: ${campos.CAUSA}
+RESOLUCAO: ${campos.RESOLUCAO}
+FEEDBACK: ${campos.FEEDBACK}
+UPSELL: ${campos.UPSELL}
+DUVIDA: ${campos.DUVIDA}
+EXPLICACAO: ${campos.EXPLICACAO}
+CONTATO: ${campos.CONTATO}
+      `;
+
+    const resp = await fetch("https://called-press.vercel.app/api/gemini", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt })
     });
 
     const data = await resp.json();
-    // log raw for debugging
-    console.log("Resposta bruta da API:", data);
+    const texto = data.text || "";
 
-    // tenta encontrar o texto retornado pelo Gemini em caminhos comuns
-    let texto = (
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      data?.output?.[0]?.content?.text ||
-      data?.text ||
-      JSON.stringify(data)
-    );
+    // Preenche de volta os campos no HTML
+    document.getElementById("errorMessage").value = extrair("ERRO", texto);
+    document.getElementById("problemCause").value = extrair("CAUSA", texto);
+    document.getElementById("resolution").value = extrair("RESOLUCAO", texto);
+    document.getElementById("clientFeedback").value = extrair("FEEDBACK", texto);
+    document.getElementById("upsellDesc").value = extrair("UPSELL", texto);
 
-    console.log("Texto extraído:", texto);
+    // CAMPOS DAS OUTRAS TELAS
+    document.getElementById("duvidaCliente").value = extrair("DUVIDA", texto);
+    document.getElementById("duvidaExplicacao").value = extrair("EXPLICACAO", texto);
+    document.getElementById("contatoRelato").value = extrair("CONTATO", texto);
 
-    // limpa fences de código e espaços
-    texto = texto.replace(/```(?:json)?/gi, "").trim();
-
-    // tenta extrair o primeiro bloco JSON válido presente no texto
-    const firstMatch = texto.match(/\{[\s\S]*\}/);
-    if (!firstMatch) {
-      // fallback: mostra o texto para você inspecionar e aborta
-      alert("A IA não retornou um JSON detectável. Veja console (Resposta bruta).");
-      return;
-    }
-
-    let candidate = firstMatch[0];
-
-    // tentativa de consertos comuns antes de parsear:
-    // 1) remover vírgulas finais em objetos
-    candidate = candidate.replace(/,\s*}/g, "}");
-    candidate = candidate.replace(/,\s*]/g, "]");
-    // 2) transformar aspas simples em aspas duplas (cautela)
-    candidate = candidate.replace(/([\{,:\[])\s*'([^']*)'\s*(?=[,\}\]])/g, '$1"$2"');
-
-    // 3) se as chaves estiverem sem aspas, adiciona aspas às chaves (heurística simples)
-    // (ex.: {mensagem: "x"} -> {"mensagem": "x"})
-    candidate = candidate.replace(/([\{\s,])([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
-
-    let json;
-    try {
-      json = JSON.parse(candidate);
-    } catch (e) {
-      console.error("Falha ao parsear JSON depois das tentativas:", e);
-      console.log("Candidate final para parse:", candidate);
-      alert("Falha ao converter JSON da IA. Veja console para detalhes.");
-      return;
-    }
-
-    // Preenche os campos corrigidos
-    document.getElementById("errorMessage").value = json.mensagemErro || "";
-    document.getElementById("problemCause").value = json.causa || "";
-    document.getElementById("resolution").value = json.resolucao || "";
-    document.getElementById("clientFeedback").value = json.feedback || "";
-    document.getElementById("upsellDesc").value = json.upsell || "";
-
-    if (document.getElementById("duvidaCliente"))
-      document.getElementById("duvidaCliente").value = json.duvidaCliente || "";
-
-    if (document.getElementById("duvidaExplicacao"))
-      document.getElementById("duvidaExplicacao").value = json.duvidaExplicacao || "";
-
-    if (document.getElementById("contatoRelato"))
-      document.getElementById("contatoRelato").value = json.contatoRelato || "";
-
-    // opcional: toast pequeno
-    showToast("Textos corrigidos com IA!");
-  } catch (err) {
-    console.error("Erro na requisição ao backend:", err);
-    alert("Erro ao comunicar com a API. Veja console.");
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao comunicar com a IA.");
   }
+
+  btn.innerHTML = original;
+  btn.disabled = false;
 });
 
