@@ -443,6 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// --- CORRIGIR TODOS OS CAMPOS COM IA (versão mais robusta) ---
 document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
   const campos = {
     mensagemErro: document.getElementById("errorMessage").value,
@@ -455,23 +456,25 @@ document.getElementById("btnCorrigirTudo").addEventListener("click", async () =>
     contatoRelato: document.getElementById("contatoRelato")?.value || ""
   };
 
+  // prompt reforçado e com exemplo — ajuda o modelo a responder só com JSON
   const prompt = `
-Corrija ortografia, gramática e clareza dos textos abaixo, mantendo o significado original.
+Você receberá textos de vários campos. CORRIJA ortografia, gramática e clareza, mantendo o sentido.
+RESPONDA APENAS com UM ÚNICO JSON válido (sem texto extra) no formato exatamente igual ao exemplo.
+Se algum campo estiver vazio, retorne string vazia.
 
-Retorne APENAS um JSON no formato:
-
+Exemplo de saída:
 {
-  "mensagemErro": "...",
-  "causa": "...",
-  "resolucao": "...",
-  "feedback": "...",
-  "upsell": "...",
-  "duvidaCliente": "...",
-  "duvidaExplicacao": "...",
-  "contatoRelato": "..."
+  "mensagemErro": "texto corrigido",
+  "causa": "texto corrigido",
+  "resolucao": "texto corrigido",
+  "feedback": "texto corrigido",
+  "upsell": "texto corrigido",
+  "duvidaCliente": "texto corrigido",
+  "duvidaExplicacao": "texto corrigido",
+  "contatoRelato": "texto corrigido"
 }
 
-Conteúdos:
+Agora corrija os seguintes conteúdos e retorne apenas o JSON:
 
 MENSAGEM DE ERRO:
 ${campos.mensagemErro}
@@ -496,50 +499,85 @@ ${campos.duvidaExplicacao}
 
 RELATO:
 ${campos.contatoRelato}
-  `.trim();
+`.trim();
 
-  const resp = await fetch("https://called-press.vercel.app/api/gemini", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt })
-  });
-
-  const data = await resp.json();
-
-  let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-  // --- EXTRAÇÃO SEGURA DO JSON ---
-  const match = texto.match(/\{[\s\S]*\}/);
-
-  if (!match) {
-    alert("A IA não retornou um JSON válido.");
-    console.error("Resposta da IA:", texto);
-    return;
-  }
-
-  let json;
   try {
-    json = JSON.parse(match[0]);
-  } catch (e) {
-    alert("Falha ao converter JSON da IA.\nVeja o console para detalhes.");
-    console.error("JSON recebido:", match[0]);
-    return;
+    // Chamada ao backend
+    const resp = await fetch("/api/gemini", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await resp.json();
+    // log raw for debugging
+    console.log("Resposta bruta da API:", data);
+
+    // tenta encontrar o texto retornado pelo Gemini em caminhos comuns
+    let texto = (
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      data?.output?.[0]?.content?.text ||
+      data?.text ||
+      JSON.stringify(data)
+    );
+
+    console.log("Texto extraído:", texto);
+
+    // limpa fences de código e espaços
+    texto = texto.replace(/```(?:json)?/gi, "").trim();
+
+    // tenta extrair o primeiro bloco JSON válido presente no texto
+    const firstMatch = texto.match(/\{[\s\S]*\}/);
+    if (!firstMatch) {
+      // fallback: mostra o texto para você inspecionar e aborta
+      alert("A IA não retornou um JSON detectável. Veja console (Resposta bruta).");
+      return;
+    }
+
+    let candidate = firstMatch[0];
+
+    // tentativa de consertos comuns antes de parsear:
+    // 1) remover vírgulas finais em objetos
+    candidate = candidate.replace(/,\s*}/g, "}");
+    candidate = candidate.replace(/,\s*]/g, "]");
+    // 2) transformar aspas simples em aspas duplas (cautela)
+    candidate = candidate.replace(/([\{,:\[])\s*'([^']*)'\s*(?=[,\}\]])/g, '$1"$2"');
+
+    // 3) se as chaves estiverem sem aspas, adiciona aspas às chaves (heurística simples)
+    // (ex.: {mensagem: "x"} -> {"mensagem": "x"})
+    candidate = candidate.replace(/([\{\s,])([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+
+    let json;
+    try {
+      json = JSON.parse(candidate);
+    } catch (e) {
+      console.error("Falha ao parsear JSON depois das tentativas:", e);
+      console.log("Candidate final para parse:", candidate);
+      alert("Falha ao converter JSON da IA. Veja console para detalhes.");
+      return;
+    }
+
+    // Preenche os campos corrigidos
+    document.getElementById("errorMessage").value = json.mensagemErro || "";
+    document.getElementById("problemCause").value = json.causa || "";
+    document.getElementById("resolution").value = json.resolucao || "";
+    document.getElementById("clientFeedback").value = json.feedback || "";
+    document.getElementById("upsellDesc").value = json.upsell || "";
+
+    if (document.getElementById("duvidaCliente"))
+      document.getElementById("duvidaCliente").value = json.duvidaCliente || "";
+
+    if (document.getElementById("duvidaExplicacao"))
+      document.getElementById("duvidaExplicacao").value = json.duvidaExplicacao || "";
+
+    if (document.getElementById("contatoRelato"))
+      document.getElementById("contatoRelato").value = json.contatoRelato || "";
+
+    // opcional: toast pequeno
+    showToast("Textos corrigidos com IA!");
+  } catch (err) {
+    console.error("Erro na requisição ao backend:", err);
+    alert("Erro ao comunicar com a API. Veja console.");
   }
-
-  // --- Preenche os campos corrigidos ---
-  document.getElementById("errorMessage").value = json.mensagemErro || "";
-  document.getElementById("problemCause").value = json.causa || "";
-  document.getElementById("resolution").value = json.resolucao || "";
-  document.getElementById("clientFeedback").value = json.feedback || "";
-  document.getElementById("upsellDesc").value = json.upsell || "";
-
-  if (document.getElementById("duvidaCliente"))
-    document.getElementById("duvidaCliente").value = json.duvidaCliente || "";
-
-  if (document.getElementById("duvidaExplicacao"))
-    document.getElementById("duvidaExplicacao").value = json.duvidaExplicacao || "";
-
-  if (document.getElementById("contatoRelato"))
-    document.getElementById("contatoRelato").value = json.contatoRelato || "";
 });
 
