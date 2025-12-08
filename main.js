@@ -443,55 +443,93 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// =======================
-// Correção automática com Gemini
-// =======================
-async function corrigirTexto(campoId) {
-  const campo = document.getElementById(campoId);
-  const textoOriginal = campo.value.trim();
+// --- CORRIGIR TODOS OS CAMPOS COM IA ---
+document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
+  const campos = {
+    mensagemErro: document.getElementById("errorMessage").value,
+    causa: document.getElementById("problemCause").value,
+    resolucao: document.getElementById("resolution").value,
+    feedback: document.getElementById("clientFeedback").value,
+    upsell: document.getElementById("upsellDesc").value,
+    duvidaCliente: document.getElementById("duvidaCliente")?.value || "",
+    duvidaExplicacao: document.getElementById("duvidaExplicacao")?.value || "",
+    contatoRelato: document.getElementById("contatoRelato")?.value || ""
+  };
 
-  if (textoOriginal.length < 5) return; // ignora textos muito curtos
+  // cria um texto organizado p/ enviar
+  const prompt = `
+Corrija ortografia, gramática e clareza dos textos abaixo, mantendo o significado original. Não invente nada novo.
 
+MENSAGEM DE ERRO:
+${campos.mensagemErro}
+
+CAUSA DO PROBLEMA:
+${campos.causa}
+
+RESOLUÇÃO:
+${campos.resolucao}
+
+FEEDBACK:
+${campos.feedback}
+
+UPSELL:
+${campos.upsell}
+
+DÚVIDA DO CLIENTE:
+${campos.duvidaCliente}
+
+EXPLICAÇÃO:
+${campos.duvidaExplicacao}
+
+RELATO DO CONTATO:
+${campos.contatoRelato}
+
+Retorne NO FORMATO JSON assim:
+
+{
+  "mensagemErro": "...",
+  "causa": "...",
+  "resolucao": "...",
+  "feedback": "...",
+  "upsell": "...",
+  "duvidaCliente": "...",
+  "duvidaExplicacao": "...",
+  "contatoRelato": "..."
+}`.trim();
+
+  // chamada ao seu backend
+  const resp = await fetch("https://called-press.vercel.app/api/gemini", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt })
+  });
+
+  const data = await resp.json();
+
+  console.log("Resposta da IA:", data);
+
+  let texto;
   try {
-    const resp = await fetch("/api/gemini", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt:
-          "Corrija ortografia, clareza e gramática deste texto. Mantenha o sentido original e responda SOMENTE com o texto corrigido:\n\n" +
-          textoOriginal
-      })
-    });
+    texto = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const json = JSON.parse(texto);
 
-    const data = await resp.json();
-    const textoCorrigido = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    document.getElementById("errorMessage").value = json.mensagemErro;
+    document.getElementById("problemCause").value = json.causa;
+    document.getElementById("resolution").value = json.resolucao;
+    document.getElementById("clientFeedback").value = json.feedback;
+    document.getElementById("upsellDesc").value = json.upsell;
 
-    if (textoCorrigido) {
-      campo.value = textoCorrigido.trim();
-    }
+    if (document.getElementById("duvidaCliente"))
+      document.getElementById("duvidaCliente").value = json.duvidaCliente;
+
+    if (document.getElementById("duvidaExplicacao"))
+      document.getElementById("duvidaExplicacao").value = json.duvidaExplicacao;
+
+    if (document.getElementById("contatoRelato"))
+      document.getElementById("contatoRelato").value = json.contatoRelato;
+
   } catch (e) {
-    console.error("Erro ao corrigir texto:", e);
-  }
-}
-
-// =======================
-// Lista dos campos que terão correção automática
-// =======================
-const camposParaCorrigir = [
-  "errorMessage",
-  "problemCause",
-  "resolution",
-  "clientFeedback",
-  "upsellDesc",
-  "duvidaCliente",
-  "duvidaExplicacao",
-  "contatoRelato",
-];
-
-// Ativa correção ao sair do campo
-camposParaCorrigir.forEach(id => {
-  const campo = document.getElementById(id);
-  if (campo) {
-    campo.addEventListener("blur", () => corrigirTexto(id));
+    alert("Erro ao interpretar resposta da IA.");
+    console.error(e);
   }
 });
