@@ -443,20 +443,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// =============================================
-// EXTRAI TEXTO ENTRE TAGS COMO [ERRO] ... [FIM]
-// =============================================
-function extrair(tag, texto) {
-  const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[FIM_${tag}\\]`, "i");
-  const match = texto.match(regex);
-  return match ? match[1].trim() : "";
-}
+// =============================
+// BOTÃO: Corrigir todos os textos com IA
+// =============================
+document.getElementById("btnCorrigirTudo").addEventListener("click", corrigirTudoComIA);
 
-// =============================================
-// EVENTO DO BOTÃO QUE CORRIGE TUDO DE UMA VEZ
-// =============================================
-document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
-
+async function corrigirTudoComIA() {
   const campos = {
     ERRO: document.getElementById("errorMessage").value,
     CAUSA: document.getElementById("problemCause").value,
@@ -465,90 +457,89 @@ document.getElementById("btnCorrigirTudo").addEventListener("click", async () =>
     UPSELL: document.getElementById("upsellDesc").value,
     DUVIDA: document.getElementById("duvidaCliente").value,
     EXPLICACAO: document.getElementById("duvidaExplicacao").value,
-    CONTATO: document.getElementById("contatoRelato").value
+    CONTATO: document.getElementById("contatoRelato").value,
   };
 
-  const btn = document.getElementById("btnCorrigirTudo");
-  const original = btn.innerHTML;
-  btn.innerHTML = "Corrigindo...";
-  btn.disabled = true;
+  const prompt = `
+Corrija ortografia e clareza dos textos abaixo, mantendo o sentido original.
+Responda EXATAMENTE no seguinte formato:
+
+[ERRO]texto corrigido[FIM_ERRO]
+[CAUSA]texto corrigido[FIM_CAUSA]
+[RESOLUCAO]texto corrigido[FIM_RESOLUCAO]
+[FEEDBACK]texto corrigido[FIM_FEEDBACK]
+[UPSELL]texto corrigido[FIM_UPSELL]
+[DUVIDA]texto corrigido[FIM_DUVIDA]
+[EXPLICACAO]texto corrigido[FIM_EXPLICACAO]
+[CONTATO]texto corrigido[FIM_CONTATO]
+
+Textos:
+
+Mensagem de erro:
+${campos.ERRO}
+
+Causa:
+${campos.CAUSA}
+
+Resolução:
+${campos.RESOLUCAO}
+
+Feedback:
+${campos.FEEDBACK}
+
+Upsell:
+${campos.UPSELL}
+
+Dúvida:
+${campos.DUVIDA}
+
+Explicação:
+${campos.EXPLICACAO}
+
+Contato:
+${campos.CONTATO}
+`;
 
   try {
-    const prompt =
-      `Você irá corrigir textos escritos por um atendente. 
-A saída deve ser exatamente assim:
-
-[ERRO]
-texto corrigido
-[FIM_ERRO]
-
-[CAUSA]
-texto corrigido
-[FIM_CAUSA]
-
-[RESOLUCAO]
-texto corrigido
-[FIM_RESOLUCAO]
-
-[FEEDBACK]
-texto corrigido
-[FIM_FEEDBACK]
-
-[UPSELL]
-texto corrigido
-[FIM_UPSELL]
-
-[DUVIDA]
-texto corrigido
-[FIM_DUVIDA]
-
-[EXPLICACAO]
-texto corrigido
-[FIM_EXPLICACAO]
-
-[CONTATO]
-texto corrigido
-[FIM_CONTATO]
-
-Agora os textos:
-
-ERRO: ${campos.ERRO}
-CAUSA: ${campos.CAUSA}
-RESOLUCAO: ${campos.RESOLUCAO}
-FEEDBACK: ${campos.FEEDBACK}
-UPSELL: ${campos.UPSELL}
-DUVIDA: ${campos.DUVIDA}
-EXPLICACAO: ${campos.EXPLICACAO}
-CONTATO: ${campos.CONTATO}
-      `;
-
-    const resp = await fetch("https://called-press.vercel.app/api/gemini", {
+    const resp = await fetch("/api/gemini", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt })
     });
 
     const data = await resp.json();
-    const texto = data.text || "";
+    let texto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    // Preenche de volta os campos no HTML
-    document.getElementById("errorMessage").value = extrair("ERRO", texto);
-    document.getElementById("problemCause").value = extrair("CAUSA", texto);
-    document.getElementById("resolution").value = extrair("RESOLUCAO", texto);
-    document.getElementById("clientFeedback").value = extrair("FEEDBACK", texto);
-    document.getElementById("upsellDesc").value = extrair("UPSELL", texto);
+    console.log("RETORNO IA:", texto);
 
-    // CAMPOS DAS OUTRAS TELAS
-    document.getElementById("duvidaCliente").value = extrair("DUVIDA", texto);
-    document.getElementById("duvidaExplicacao").value = extrair("EXPLICACAO", texto);
-    document.getElementById("contatoRelato").value = extrair("CONTATO", texto);
+    // ===== FUNÇÃO PARA EXTRAR COM SEGURANÇA =====
+    function extrair(tag, textoIA, original) {
+      const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[FIM_${tag}\\]`, "i");
+      const match = textoIA.match(regex);
 
+      // IA falhou ou veio vazio → mantém o texto original
+      if (!match || !match[1] || match[1].trim() === "") {
+        return original;
+      }
+
+      return match[1].trim();
+    }
+
+    // ===== APLICAÇÃO NOS CAMPOS =====
+    document.getElementById("errorMessage").value = extrair("ERRO", texto, campos.ERRO);
+    document.getElementById("problemCause").value = extrair("CAUSA", texto, campos.CAUSA);
+    document.getElementById("resolution").value = extrair("RESOLUCAO", texto, campos.RESOLUCAO);
+    document.getElementById("clientFeedback").value = extrair("FEEDBACK", texto, campos.FEEDBACK);
+    document.getElementById("upsellDesc").value = extrair("UPSELL", texto, campos.UPSELL);
+
+    document.getElementById("duvidaCliente").value = extrair("DUVIDA", texto, campos.DUVIDA);
+    document.getElementById("duvidaExplicacao").value = extrair("EXPLICACAO", texto, campos.EXPLICACAO);
+    document.getElementById("contatoRelato").value = extrair("CONTATO", texto, campos.CONTATO);
+
+    alert("Textos revisados com sucesso!");
   } catch (e) {
-    console.error(e);
-    alert("Erro ao comunicar com a IA.");
+    console.error("Erro ao enviar para IA:", e);
+    alert("Falha ao processar IA. Tente novamente.");
   }
-
-  btn.innerHTML = original;
-  btn.disabled = false;
-});
+}
 
