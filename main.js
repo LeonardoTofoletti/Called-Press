@@ -443,7 +443,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// --- CORRIGIR TODOS OS CAMPOS COM IA ---
 document.getElementById("btnCorrigirTudo").addEventListener("click", async () => {
   const campos = {
     mensagemErro: document.getElementById("errorMessage").value,
@@ -456,14 +455,28 @@ document.getElementById("btnCorrigirTudo").addEventListener("click", async () =>
     contatoRelato: document.getElementById("contatoRelato")?.value || ""
   };
 
-  // cria um texto organizado p/ enviar
   const prompt = `
-Corrija ortografia, gramática e clareza dos textos abaixo, mantendo o significado original. Não invente nada novo.
+Corrija ortografia, gramática e clareza dos textos abaixo, mantendo o significado original.
+
+Retorne APENAS um JSON no formato:
+
+{
+  "mensagemErro": "...",
+  "causa": "...",
+  "resolucao": "...",
+  "feedback": "...",
+  "upsell": "...",
+  "duvidaCliente": "...",
+  "duvidaExplicacao": "...",
+  "contatoRelato": "..."
+}
+
+Conteúdos:
 
 MENSAGEM DE ERRO:
 ${campos.mensagemErro}
 
-CAUSA DO PROBLEMA:
+CAUSA:
 ${campos.causa}
 
 RESOLUÇÃO:
@@ -475,29 +488,16 @@ ${campos.feedback}
 UPSELL:
 ${campos.upsell}
 
-DÚVIDA DO CLIENTE:
+DÚVIDA CLIENTE:
 ${campos.duvidaCliente}
 
 EXPLICAÇÃO:
 ${campos.duvidaExplicacao}
 
-RELATO DO CONTATO:
+RELATO:
 ${campos.contatoRelato}
+  `.trim();
 
-Retorne NO FORMATO JSON assim:
-
-{
-  "mensagemErro": "...",
-  "causa": "...",
-  "resolucao": "...",
-  "feedback": "...",
-  "upsell": "...",
-  "duvidaCliente": "...",
-  "duvidaExplicacao": "...",
-  "contatoRelato": "..."
-}`.trim();
-
-  // chamada ao seu backend
   const resp = await fetch("https://called-press.vercel.app/api/gemini", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -506,30 +506,40 @@ Retorne NO FORMATO JSON assim:
 
   const data = await resp.json();
 
-  console.log("Resposta da IA:", data);
+  let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-  let texto;
-  try {
-    texto = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    const json = JSON.parse(texto);
+  // --- EXTRAÇÃO SEGURA DO JSON ---
+  const match = texto.match(/\{[\s\S]*\}/);
 
-    document.getElementById("errorMessage").value = json.mensagemErro;
-    document.getElementById("problemCause").value = json.causa;
-    document.getElementById("resolution").value = json.resolucao;
-    document.getElementById("clientFeedback").value = json.feedback;
-    document.getElementById("upsellDesc").value = json.upsell;
-
-    if (document.getElementById("duvidaCliente"))
-      document.getElementById("duvidaCliente").value = json.duvidaCliente;
-
-    if (document.getElementById("duvidaExplicacao"))
-      document.getElementById("duvidaExplicacao").value = json.duvidaExplicacao;
-
-    if (document.getElementById("contatoRelato"))
-      document.getElementById("contatoRelato").value = json.contatoRelato;
-
-  } catch (e) {
-    alert("Erro ao interpretar resposta da IA.");
-    console.error(e);
+  if (!match) {
+    alert("A IA não retornou um JSON válido.");
+    console.error("Resposta da IA:", texto);
+    return;
   }
+
+  let json;
+  try {
+    json = JSON.parse(match[0]);
+  } catch (e) {
+    alert("Falha ao converter JSON da IA.\nVeja o console para detalhes.");
+    console.error("JSON recebido:", match[0]);
+    return;
+  }
+
+  // --- Preenche os campos corrigidos ---
+  document.getElementById("errorMessage").value = json.mensagemErro || "";
+  document.getElementById("problemCause").value = json.causa || "";
+  document.getElementById("resolution").value = json.resolucao || "";
+  document.getElementById("clientFeedback").value = json.feedback || "";
+  document.getElementById("upsellDesc").value = json.upsell || "";
+
+  if (document.getElementById("duvidaCliente"))
+    document.getElementById("duvidaCliente").value = json.duvidaCliente || "";
+
+  if (document.getElementById("duvidaExplicacao"))
+    document.getElementById("duvidaExplicacao").value = json.duvidaExplicacao || "";
+
+  if (document.getElementById("contatoRelato"))
+    document.getElementById("contatoRelato").value = json.contatoRelato || "";
 });
+
