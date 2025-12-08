@@ -28,12 +28,15 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Se a API do Google vier com erro, repasse corretamente
+    // Repassar erro da API corretamente
     if (!response.ok) {
       return res.status(response.status).json(data);
     }
 
-    return res.status(200).json(data);
+    // Retornar somente o texto gerado (fica mais fácil no front)
+    const output = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    return res.status(200).json({ result: output });
   } catch (error) {
     console.error("Erro:", error);
     return res.status(500).json({ error: "Erro interno no servidor" });
