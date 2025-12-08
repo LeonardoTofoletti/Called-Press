@@ -443,62 +443,107 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// =============================
-// BOTÃO: Corrigir todos os textos com IA
-// =============================
-document.getElementById("btnCorrigirTudo").addEventListener("click", corrigirTudoComIA);
+// -----------------------------
+// Substitua o listener antigo do copyBtn por este bloco
+// -----------------------------
 
-async function corrigirTudoComIA() {
-  const campos = {
-    ERRO: document.getElementById("errorMessage").value,
-    CAUSA: document.getElementById("problemCause").value,
-    RESOLUCAO: document.getElementById("resolution").value,
-    FEEDBACK: document.getElementById("clientFeedback").value,
-    UPSELL: document.getElementById("upsellDesc").value,
-    DUVIDA: document.getElementById("duvidaCliente").value,
-    EXPLICACAO: document.getElementById("duvidaExplicacao").value,
-    CONTATO: document.getElementById("contatoRelato").value,
-  };
+// helper: monta o texto final que você copia
+function montarTextoParaCopiar() {
+  const ativo = document.querySelector('.tipo-chamado button.ativo').textContent;
+  let texto = `TIPO DE CHAMADO: ${ativo}\n\n`;
 
+  if (ativo === 'Problema') {
+    if (docNumber.value) texto += `NÚMERO DO DOCUMENTO: ${docNumber.value}\n\n`;
+    if (errorMessage.value) texto += `MENSAGEM DE ERRO: ${errorMessage.value}\n\n`;
+    if (problemCause.value) texto += `CAUSA DO PROBLEMA / DUVIDA: ${problemCause.value}\n\n`;
+    if (resolution.value) texto += `RESOLUÇÃO: ${resolution.value}\n\n`;
+  } else if (ativo === 'Dúvida') {
+    if (duvidaCliente.value) texto += `DÚVIDA DO CLIENTE: ${duvidaCliente.value}\n\n`;
+    if (duvidaExplicacao.value) texto += `EXPLICAÇÃO: ${duvidaExplicacao.value}\n\n`;
+  } else {
+    if (contatoRelato.value) texto += `RELATO DO CONTATO: ${contatoRelato.value}\n\n`;
+  }
+
+  if (clientFeedback.value) texto += `FEEDBACK DO CLIENTE: ${clientFeedback.value}\n\n`;
+  if (humorSelection.value) texto += `HUMOR DO CLIENTE: ${humorSelection.value}\n\n`;
+
+  const upsell = document.querySelector('input[name="upsell"]:checked')?.value;
+  const captura = document.querySelector('input[name="captura"]:checked')?.value;
+
+  if (upsell) texto += `UPSELL: ${upsell}\n\n`;
+  if (upsellDesc.value) texto += `DESCRIÇÃO UPSELL: ${upsellDesc.value}\n\n`;
+  if (captura) texto += `MENSAGENS OU PRINT DE ERROS: ${captura}`;
+
+  return texto;
+}
+
+// helper: hash simples para chave de cache (string -> key)
+function simpleHash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
+  return 'corr_' + Math.abs(h);
+}
+
+// extrai blocos da resposta da IA (tag-based)
+function extrairTag(texto, tag) {
+  const rx = new RegExp(`\\[${tag}\\]([\\s\\S]*?)(?=(\\[|$))`, 'i');
+  const m = texto.match(rx);
+  return m ? m[1].trim() : '';
+}
+
+// fallback: copia qualquer texto pro clipboard e mostra mensagem
+function copiarParaClipboard(texto, msg) {
+  navigator.clipboard.writeText(texto).then(() => {
+    showToast(msg || "Texto copiado!");
+    // limpa campos (se desejar manter original, remova a linha abaixo)
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+  }).catch(err => {
+    console.error("Erro ao copiar:", err);
+    alert("Erro ao copiar para a área de transferência.");
+  });
+}
+
+document.getElementById('copyBtn').addEventListener('click', async function (e) {
+  const btn = e.currentTarget;
+  const originalBtnHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Corrigindo e copiando...';
+
+  const textoOriginal = montarTextoParaCopiar();
+  const cacheKey = simpleHash(textoOriginal);
+
+  // Checa cache local (p/ diminuir chamadas)
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    copiarParaClipboard(cached, "Texto corrigido (cache) copiado!");
+    btn.disabled = false;
+    btn.innerHTML = originalBtnHtml;
+    return;
+  }
+
+  // Prepara prompt robusto (formato por tags, sem JSON)
+  // importante: pedir explicitamente para só devolver os blocos
   const prompt = `
-Corrija ortografia e clareza dos textos abaixo, mantendo o sentido original.
-Responda EXATAMENTE no seguinte formato:
+Você deve CORRIGIR ORTOGRAFIA e CLAREZA dos textos abaixo sem mudar o sentido.
+Responda EXATAMENTE no formato abaixo (apenas os blocos, sem explicações):
 
-[ERRO]texto corrigido[FIM_ERRO]
-[CAUSA]texto corrigido[FIM_CAUSA]
-[RESOLUCAO]texto corrigido[FIM_RESOLUCAO]
-[FEEDBACK]texto corrigido[FIM_FEEDBACK]
-[UPSELL]texto corrigido[FIM_UPSELL]
-[DUVIDA]texto corrigido[FIM_DUVIDA]
-[EXPLICACAO]texto corrigido[FIM_EXPLICACAO]
-[CONTATO]texto corrigido[FIM_CONTATO]
+[ERRO]
+<texto corrigido>
+[CAUSA]
+<texto corrigido>
+[RESOLUCAO]
+<texto corrigido>
+[FEEDBACK]
+<texto corrigido>
+[UPSELL]
+<texto corrigido>
 
-Textos:
+Agora corrija os textos (se algum estiver vazio, retorne vazio no bloco).
+---
 
-Mensagem de erro:
-${campos.ERRO}
-
-Causa:
-${campos.CAUSA}
-
-Resolução:
-${campos.RESOLUCAO}
-
-Feedback:
-${campos.FEEDBACK}
-
-Upsell:
-${campos.UPSELL}
-
-Dúvida:
-${campos.DUVIDA}
-
-Explicação:
-${campos.EXPLICACAO}
-
-Contato:
-${campos.CONTATO}
-`;
+MENSAGEM ORIGINAL:
+${textoOriginal}
+  `.trim();
 
   try {
     const resp = await fetch("/api/gemini", {
@@ -507,39 +552,75 @@ ${campos.CONTATO}
       body: JSON.stringify({ prompt })
     });
 
-    const data = await resp.json();
-    let texto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    console.log("RETORNO IA:", texto);
-
-    // ===== FUNÇÃO PARA EXTRAR COM SEGURANÇA =====
-    function extrair(tag, textoIA, original) {
-      const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[FIM_${tag}\\]`, "i");
-      const match = textoIA.match(regex);
-
-      // IA falhou ou veio vazio → mantém o texto original
-      if (!match || !match[1] || match[1].trim() === "") {
-        return original;
-      }
-
-      return match[1].trim();
+    if (resp.status === 429) {
+      // Rate limit: fallback rápido
+      copiarParaClipboard(textoOriginal, "Chave em limite — texto original copiado.");
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
+      return;
     }
 
-    // ===== APLICAÇÃO NOS CAMPOS =====
-    document.getElementById("errorMessage").value = extrair("ERRO", texto, campos.ERRO);
-    document.getElementById("problemCause").value = extrair("CAUSA", texto, campos.CAUSA);
-    document.getElementById("resolution").value = extrair("RESOLUCAO", texto, campos.RESOLUCAO);
-    document.getElementById("clientFeedback").value = extrair("FEEDBACK", texto, campos.FEEDBACK);
-    document.getElementById("upsellDesc").value = extrair("UPSELL", texto, campos.UPSELL);
+    const data = await resp.json();
 
-    document.getElementById("duvidaCliente").value = extrair("DUVIDA", texto, campos.DUVIDA);
-    document.getElementById("duvidaExplicacao").value = extrair("EXPLICACAO", texto, campos.EXPLICACAO);
-    document.getElementById("contatoRelato").value = extrair("CONTATO", texto, campos.CONTATO);
+    // tenta extrair o texto retornado de caminhos comuns
+    const textoIA = data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+                   data?.output?.[0]?.content?.text ||
+                   data?.text || 
+                   (typeof data === 'string' ? data : JSON.stringify(data));
 
-    alert("Textos revisados com sucesso!");
-  } catch (e) {
-    console.error("Erro ao enviar para IA:", e);
-    alert("Falha ao processar IA. Tente novamente.");
+    console.log("Resposta bruta IA:", textoIA);
+
+    // extrai blocos (se IA não colocar tag, extrairTag retorna "")
+    const erroCorr = extrairTag(textoIA, 'ERRO') || '';
+    const causaCorr = extrairTag(textoIA, 'CAUSA') || '';
+    const resolucaoCorr = extrairTag(textoIA, 'RESOLUCAO') || '';
+    const feedbackCorr = extrairTag(textoIA, 'FEEDBACK') || '';
+    const upsellCorr = extrairTag(textoIA, 'UPSELL') || '';
+
+    // monta o texto final (com substituição por corr if present, senão usa original)
+    // Para manter comportamento idêntico, se IA não entregou bloco, usar partes do textoOriginal.
+    // Aqui simplificamos: se bloco vazio, tentamos preservar o conteúdo correspondente no textoOriginal.
+    let finalTexto = textoOriginal;
+
+    // substitui partes específicas se temos correção (melhor tentativa)
+    if (erroCorr) finalTexto = finalTexto.replace(/(MENSAGEM DE ERRO:)[\s\S]*?(FEEDBACK DO CLIENTE:|HUMOR DO CLIENTE:|$)/i, `MENSAGEM DE ERRO: ${erroCorr}\n\n`);
+    if (causaCorr) finalTexto = finalTexto.replace(/(CAUSA DO PROBLEMA \/ DUVIDA:)[\s\S]*?(RESOLUÇÃO:|$)/i, `CAUSA DO PROBLEMA / DUVIDA: ${causaCorr}\n\n`);
+    if (resolucaoCorr) finalTexto = finalTexto.replace(/(RESOLUÇÃO:)[\s\S]*?(FEEDBACK DO CLIENTE:|$)/i, `RESOLUÇÃO: ${resolucaoCorr}\n\n`);
+    if (feedbackCorr) finalTexto = finalTexto.replace(/(FEEDBACK DO CLIENTE:)[\s\S]*?(HUMOR DO CLIENTE:|$)/i, `FEEDBACK DO CLIENTE: ${feedbackCorr}\n\n`);
+    if (upsellCorr) finalTexto = finalTexto.replace(/(DESCRIÇÃO UPSELL:)[\s\S]*?(MENSAGENS OU PRINT DE ERROS:|$)/i, `DESCRIÇÃO UPSELL: ${upsellCorr}\n\n`);
+
+    // Se finalTexto igual original (sem substituições), tenta um fallback simples: use concat dos blocos
+    if (finalTexto.trim() === textoOriginal.trim()) {
+      // monta usando blocos não vazios (garante que algo será copiado)
+      finalTexto = `TIPO DE CHAMADO: ${document.querySelector('.tipo-chamado button.ativo').textContent}\n\n`;
+      if (erroCorr) finalTexto += `MENSAGEM DE ERRO: ${erroCorr}\n\n`; else finalTexto += `MENSAGEM DE ERRO: ${document.getElementById('errorMessage').value}\n\n`;
+      if (causaCorr) finalTexto += `CAUSA DO PROBLEMA / DUVIDA: ${causaCorr}\n\n`; else finalTexto += `CAUSA DO PROBLEMA / DUVIDA: ${document.getElementById('problemCause').value}\n\n`;
+      if (resolucaoCorr) finalTexto += `RESOLUÇÃO: ${resolucaoCorr}\n\n`; else finalTexto += `RESOLUÇÃO: ${document.getElementById('resolution').value}\n\n`;
+      if (feedbackCorr) finalTexto += `FEEDBACK DO CLIENTE: ${feedbackCorr}\n\n`; else finalTexto += `FEEDBACK DO CLIENTE: ${document.getElementById('clientFeedback').value}\n\n`;
+      if (upsellCorr) finalTexto += `DESCRIÇÃO UPSELL: ${upsellCorr}\n\n`; else finalTexto += `DESCRIÇÃO UPSELL: ${document.getElementById('upsellDesc').value}\n\n`;
+      const upsellChecked = document.querySelector('input[name="upsell"]:checked')?.value;
+      const capturaChecked = document.querySelector('input[name="captura"]:checked')?.value;
+      if (upsellChecked) finalTexto += `UPSELL: ${upsellChecked}\n\n`;
+      if (capturaChecked) finalTexto += `MENSAGENS OU PRINT DE ERROS: ${capturaChecked}\n`;
+    }
+
+    // guarda no cache (1 dia)
+    try {
+      localStorage.setItem(cacheKey, finalTexto);
+      // opcional: salvar timestamp se quiser expirar depois
+      // localStorage.setItem(cacheKey + '_ts', Date.now());
+    } catch (e) {
+      console.warn("Não foi possível gravar cache:", e);
+    }
+
+    copiarParaClipboard(finalTexto, "Texto corrigido pela IA copiado!");
+  } catch (err) {
+    console.error("Erro na requisição à API:", err);
+    // fallback: copia o original
+    copiarParaClipboard(textoOriginal, "Erro na IA → texto original copiado.");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalBtnHtml;
   }
-}
+});
 
