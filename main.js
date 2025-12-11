@@ -490,10 +490,14 @@ ${texto}
 `;
 
     try {
+
+      console.log("Prompt sendo enviado para a API:", prompt);
+      console.log("JSON enviado:", JSON.stringify({ prompt }));
+    
       const req = await fetch("api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texto: prompt })
+        body: JSON.stringify({ prompt })
       });
 
       const data = await req.json();
@@ -547,3 +551,5 @@ ${texto}
 
   });
 }
+
+
