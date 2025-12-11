@@ -448,14 +448,12 @@ document.addEventListener("DOMContentLoaded", () => {
 // ---------------------------------------------------------
 //   🔥 IA – ANALISAR CONVERSA E PREENCHER AUTOMATICAMENTE
 // ---------------------------------------------------------
-
 const btnIA = document.getElementById("btnAnalisarIA");
 const campoIA = document.getElementById("textoIA");
 const iaStatus = document.getElementById("iaStatusMsg");
 
 if (btnIA) {
   btnIA.addEventListener("click", async () => {
-
     const texto = campoIA.value.trim();
     if (!texto) {
       iaStatus.style.display = "block";
@@ -470,7 +468,6 @@ if (btnIA) {
 
     const prompt = `
 Extraia do texto abaixo APENAS:
-
 1. Causa do Problema ou Dúvida (curto)
 2. Resolução aplicada
 3. Feedback final do cliente
@@ -478,7 +475,6 @@ Extraia do texto abaixo APENAS:
 Se não houver, escreva: "Não informado".
 
 Responda SOMENTE em JSON:
-
 {
  "causa": "",
  "resolucao": "",
@@ -490,11 +486,7 @@ ${texto}
 `;
 
     try {
-
-      console.log("Prompt sendo enviado para a API:", prompt);
-      console.log("JSON enviado:", JSON.stringify({ prompt }));
-    
-      const req = await fetch("api/gemini", {
+      const req = await fetch("/api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt })
@@ -502,13 +494,13 @@ ${texto}
 
       const data = await req.json();
 
-      if (!data.resultado) {
+      if (!data.result) {
         iaStatus.textContent = "Erro: IA não retornou resultado.";
         iaStatus.style.color = "red";
         return;
       }
 
-      let json = data.resultado.replace(/```json/gi, "").replace(/```/g, "");
+      let json = data.result.replace(/```json/gi, "").replace(/```/g, "");
 
       let obj;
       try {
@@ -519,25 +511,19 @@ ${texto}
         return;
       }
 
-      // ----- Preencher os campos -----
       document.getElementById("problemCause").value = obj.causa || "";
       document.getElementById("resolution").value = obj.resolucao || "";
       document.getElementById("clientFeedback").value = obj.feedback || "";
 
-      // Ajustar altura automática
       ["problemCause", "resolution", "clientFeedback"].forEach(id => {
         const el = document.getElementById(id);
         if (el && typeof autoResize === "function") autoResize(el);
       });
 
-      // ----- Fechar modal -----
       const modal = bootstrap.Modal.getInstance(document.getElementById("modalIA"));
       modal.hide();
-
-      // Limpar campo
       campoIA.value = "";
 
-      // Mostrar toast
       const toast = document.getElementById("toast");
       toast.textContent = "✔ IA preencheu automaticamente!";
       toast.classList.add("show");
@@ -548,8 +534,5 @@ ${texto}
       iaStatus.textContent = "Erro ao conectar com a IA";
       iaStatus.style.color = "red";
     }
-
   });
 }
-
-
