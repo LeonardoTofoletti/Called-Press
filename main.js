@@ -280,7 +280,8 @@ fetch('errosComuns.json')
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  const campos = document.querySelectorAll("textarea, input[type='text']");
+  const campos = document.querySelectorAll("textarea:not(#textoIA), input[type='text']");
+
 
   campos.forEach(campo => {
     const key = `cache_${campo.id}`;
