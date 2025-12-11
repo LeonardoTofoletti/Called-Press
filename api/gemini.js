@@ -5,10 +5,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { texto } = req.body;
+    const { prompt } = req.body;
 
-    if (!texto) {
-      return res.status(400).json({ error: 'Texto não enviado' });
+    if (!prompt) {
+       return res.status(400).json({ error: 'Prompt não enviado' });
     }
 
     // ===== SUA CHAVE DO GEMINI =====
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: texto }]
+              parts: [{ text: prompt }]
             }
           ]
         })
