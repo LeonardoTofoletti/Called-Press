@@ -48,6 +48,16 @@
     "humor": "Bom",
     "upsell": "Não",
     "captura": "Não"
+  },
+  {
+    "erro": "Vincular certificado A1",
+    "mensagem": "Ajuda para vincular certificado a1",
+    "causa": "Cliente não sabe como vincular o certificado a1 no sistema",
+    "resolucao": "Mostramos ao cliente como vincular o certificado e vincular para ela.",
+    "feedback": "Expliquei ao cliente como vincular ela(e) agradeceu",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
   }
   
 ]
