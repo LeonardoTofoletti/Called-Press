@@ -493,18 +493,18 @@ ${texto}
       const req = await fetch("api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ texto: prompt })
       });
 
       const data = await req.json();
 
-      if (!data.result) {
+      if (!data.resultado) {
         iaStatus.textContent = "Erro: IA não retornou resultado.";
         iaStatus.style.color = "red";
         return;
       }
 
-      let json = data.result.replace(/```json/gi, "").replace(/```/g, "");
+      let json = data.resultado.replace(/```json/gi, "").replace(/```/g, "");
 
       let obj;
       try {
