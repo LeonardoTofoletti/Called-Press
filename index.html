@@ -14,6 +14,7 @@
   <!-- CSS próprio -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="container">
     <div class="form-container">
@@ -25,6 +26,7 @@
           </button>
           <h3 class="mb-0">Called Press</h3>
         </div>
+
         <div class="tipo-chamado">
           <span class="fw-bold me-2">Tipo de Chamado:</span>
           <button id="btn-problema" class="btn btn-outline-primary ativo" onclick="mostrarTela('problema')">Problema</button>
@@ -36,16 +38,15 @@
       <!-- TELAS -->
       <div id="tela-problema" class="tela active">
         <div class="row g-3">
-          <!-- Campo de erros comuns (customizado) -->
+
           <div class="col-12 mb-2">
             <label class="form-label fw-semibold text-info d-block mb-1 margin-erro-comum">
               ⚙️ Erros comuns (autopreenchimento) <b class="conferir">! ajustar com demanda do seu chamado !</b>
             </label>
+
             <div id="customSelect" class="custom-select">
               <div class="selected">Selecione um erro</div>
-              <div class="options d-none">
-                <!-- opções serão preenchidas pelo JS -->
-              </div>
+              <div class="options d-none"></div>
             </div>
           </div>
 
@@ -53,16 +54,19 @@
             <label class="form-label">Nº do documento</label>
             <input type="text" id="docNumber" class="form-control" placeholder="ex: 31, 34, 35">
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Mensagem de erro</label>
             <input type="text" id="errorMessage" class="form-control" placeholder="Rejeição 204: Duplicidade de NF-e">
           </div>
+
           <div class="col-12">
             <label class="form-label">Causa do Problema / Duvida</label>
-            <textarea autocomplete="on" id="problemCause" rows="2" class="form-control" placeholder="Descreva o que ocasionou o erro ou situação ou a duvida"></textarea>
+            <textarea id="problemCause" rows="2" class="form-control" placeholder="Descreva o que ocasionou o erro ou situação ou a duvida"></textarea>
           </div>
+
           <div class="col-12">
-            <label autocomplete="on" class="form-label">Resolução</label>
+            <label class="form-label">Resolução</label>
             <textarea id="resolution" rows="2" class="form-control" placeholder="Descreva a resolução do problema"></textarea>
           </div>
         </div>
@@ -71,12 +75,13 @@
       <div id="tela-duvida" class="tela">
         <div class="row g-3">
           <div class="col-12">
-            <label autocomplete="on" class="form-label">Dúvida do cliente</label>
-            <textarea id="duvidaCliente" class="form-control" rows="2" placeholder="Descreva a dúvida do cliente"></textarea>
+            <label class="form-label">Dúvida do cliente</label>
+            <textarea id="duvidaCliente" rows="2" class="form-control" placeholder="Descreva a dúvida do cliente"></textarea>
           </div>
+
           <div class="col-12">
-            <label autocomplete="on" class="form-label">Explicação</label>
-            <textarea id="duvidaExplicacao" class="form-control" rows="2" placeholder="Descreva sua explicação para o cliente"></textarea>
+            <label class="form-label">Explicação</label>
+            <textarea id="duvidaExplicacao" rows="2" class="form-control" placeholder="Descreva sua explicação para o cliente"></textarea>
           </div>
         </div>
       </div>
@@ -84,18 +89,20 @@
       <div id="tela-contato" class="tela">
         <div class="row g-3">
           <div class="col-12">
-            <label autocomplete="on" class="form-label">Relato do Contato</label>
-            <textarea id="contatoRelato" class="form-control" rows="2" placeholder="Descreva o relato do contato com o cliente"></textarea>
+            <label class="form-label">Relato do Contato</label>
+            <textarea id="contatoRelato" rows="2" class="form-control" placeholder="Descreva o relato do contato com o cliente"></textarea>
           </div>
         </div>
       </div>
 
       <!-- CAMPOS COMUNS -->
       <div class="row g-3 mt-2 align-items-center">
+
         <div class="col-12">
-          <label autocomplete="on" class="form-label">Feedback do Cliente</label>
-          <textarea id="clientFeedback" class="form-control" rows="2" placeholder="Satisfação do cliente | Compreendeu ou não a solução, Nome e número do(s) envolvidos"></textarea>
+          <label class="form-label">Feedback do Cliente</label>
+          <textarea id="clientFeedback" rows="2" class="form-control" placeholder="Satisfação do cliente | Compreendeu ou não a solução, Nome e número do(s) envolvidos"></textarea>
         </div>
+
         <div class="col-md-3">
           <label class="form-label">Humor do Cliente</label>
           <select id="humorSelection" class="form-select">
@@ -104,80 +111,122 @@
             <option>Ruim</option>
           </select>
         </div>
+
         <div class="col-md-3">
           <label class="form-label d-block">Upsell</label>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="upsell" id="upsellYes" value="Sim">
+            <input type="radio" class="form-check-input" name="upsell" id="upsellYes" value="Sim">
             <label class="form-check-label" for="upsellYes">Sim</label>
           </div>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="upsell" id="upsellNo" value="Não" checked>
+            <input type="radio" class="form-check-input" name="upsell" id="upsellNo" value="Não" checked>
             <label class="form-check-label" for="upsellNo">Não</label>
           </div>
         </div>
+
         <div class="col-md-6">
           <label class="form-label d-block">Mensagens ou prints de erros</label>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="captura" id="capturaYes" value="Sim">
+            <input type="radio" class="form-check-input" name="captura" id="capturaYes" value="Sim">
             <label class="form-check-label" for="capturaYes">Sim</label>
           </div>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="captura" id="capturaNo" value="Não" checked>
+            <input type="radio" class="form-check-input" name="captura" id="capturaNo" value="Não" checked>
             <label class="form-check-label" for="capturaNo">Não</label>
           </div>
         </div>
+
         <div class="col-12 mt-2">
           <label class="form-label">Descrição do Upsell</label>
-          <textarea id="upsellDesc" class="form-control" rows="2" placeholder="Descreva o upsell (módulo vendido, negociação, etc)"></textarea>
+          <textarea id="upsellDesc" rows="2" class="form-control" placeholder="Descreva o upsell (módulo vendido, negociação, etc)"></textarea>
         </div>
       </div>
 
       <!-- BOTÕES -->
       <div class="d-flex justify-content-between mt-4">
         <div class="footer-buttons">
-          <button id="novasAtualizacoes" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#creditosModal" tabindex="-1"><i class="bi bi-info"></i> Novas Atualizações</button>
-          <button type="button" id="limparHistorico" class="btn-limpar" tabindex="-1">🧹 Limpar Cache</button>
+          <button id="novasAtualizacoes" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#creditosModal"><i class="bi bi-info"></i> Novas Atualizações</button>
+          <button id="limparHistorico" class="btn-limpar">🧹 Limpar Cache</button>
+          <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalIA">Analisar conversa (IA)</button>
           <div id="toast" class="toast-msg"></div>
         </div>
+
         <button id="copyBtn" class="btn btn-primary">Copiar textos <i class="bi bi-copy"></i></button>
       </div>
     </div>
   </div>
 
-  <!-- MODAIS -->
+  <!-- MODAL: Créditos -->
   <div class="modal fade" id="creditosModal">
     <div class="modal-dialog">
       <div class="modal-content">
+
         <div class="modal-header">
           <h5>Atualizações do Site</h5>
           <button class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+
         <div class="modal-body">
           <ul>Atualização dia 11/11/2025</ul>
-          <li>Adicionado cache aos campos de preenchimento ficara salvo sua ultima coisa que escreveu</li>
-          <li>Adicionado botão limpar cache dos texto que o navegador salva </li>
+          <li>Adicionado cache aos campos</li>
+          <li>Adicionado botão limpar cache</li>
         </div>
+
       </div>
     </div>
   </div>
 
+  <!-- MODAL: Diretriz (CORRIGIDO) -->
   <div class="modal fade" id="diretriz">
     <div class="modal-dialog">
       <div class="modal-content">
+
         <div class="modal-header">
           <h5>Créditos</h5>
           <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <p>Insira aqui seu conteúdo.</p>
+        </div>
+
+      </div>
     </div>
   </div>
 
-  <!-- Mensagem copiado -->
+  <!-- MODAL IA -->
+  <div class="modal fade" id="modalIA">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Analisar conversa com IA</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <label class="form-label fw-semibold">Cole aqui o histórico completo</label>
+          <textarea id="textoIA" class="form-control" rows="8" placeholder="Cole aqui toda a conversa"></textarea>
+
+          <div id="iaStatusMsg" style="display:none; margin-top:6px; font-size:0.9rem;"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btnAnalisarIA" class="btn btn-primary">Analisar e Preencher Automaticamente</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensagem Copiado -->
   <div id="copyMessage">Texto copiado!</div>
 
-  <!-- JS Bootstrap -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- JS próprio -->
   <script src="main.js?v=27102025"></script>
-  
+
 </body>
 </html>

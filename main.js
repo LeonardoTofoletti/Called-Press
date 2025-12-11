@@ -443,3 +443,106 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+// ---------------------------------------------------------
+//   🔥 IA – ANALISAR CONVERSA E PREENCHER AUTOMATICAMENTE
+// ---------------------------------------------------------
+
+const btnIA = document.getElementById("btnAnalisarIA");
+const campoIA = document.getElementById("textoIA");
+const iaStatus = document.getElementById("iaStatusMsg");
+
+if (btnIA) {
+  btnIA.addEventListener("click", async () => {
+
+    const texto = campoIA.value.trim();
+    if (!texto) {
+      iaStatus.style.display = "block";
+      iaStatus.textContent = "Cole o texto da conversa.";
+      iaStatus.style.color = "red";
+      return;
+    }
+
+    iaStatus.style.display = "block";
+    iaStatus.style.color = "#0af";
+    iaStatus.textContent = "Analisando com IA...";
+
+    const prompt = `
+Extraia do texto abaixo APENAS:
+
+1. Causa do Problema ou Dúvida (curto)
+2. Resolução aplicada
+3. Feedback final do cliente
+
+Se não houver, escreva: "Não informado".
+
+Responda SOMENTE em JSON:
+
+{
+ "causa": "",
+ "resolucao": "",
+ "feedback": ""
+}
+
+Texto analisado:
+${texto}
+`;
+
+    try {
+      const req = await fetch("/api/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await req.json();
+
+      if (!data.result) {
+        iaStatus.textContent = "Erro: IA não retornou resultado.";
+        iaStatus.style.color = "red";
+        return;
+      }
+
+      let json = data.result.replace(/```json/gi, "").replace(/```/g, "");
+
+      let obj;
+      try {
+        obj = JSON.parse(json);
+      } catch {
+        iaStatus.textContent = "Erro ao interpretar retorno da IA.";
+        iaStatus.style.color = "red";
+        return;
+      }
+
+      // ----- Preencher os campos -----
+      document.getElementById("problemCause").value = obj.causa || "";
+      document.getElementById("resolution").value = obj.resolucao || "";
+      document.getElementById("clientFeedback").value = obj.feedback || "";
+
+      // Ajustar altura automática
+      ["problemCause", "resolution", "clientFeedback"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && typeof autoResize === "function") autoResize(el);
+      });
+
+      // ----- Fechar modal -----
+      const modal = bootstrap.Modal.getInstance(document.getElementById("modalIA"));
+      modal.hide();
+
+      // Limpar campo
+      campoIA.value = "";
+
+      // Mostrar toast
+      const toast = document.getElementById("toast");
+      toast.textContent = "✔ IA preencheu automaticamente!";
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2500);
+
+    } catch (err) {
+      console.error(err);
+      iaStatus.textContent = "Erro ao conectar com a IA";
+      iaStatus.style.color = "red";
+    }
+
+  });
+}
