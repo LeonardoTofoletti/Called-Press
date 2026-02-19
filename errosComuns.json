@@ -58,6 +58,15 @@
     "humor": "Bom",
     "upsell": "Não",
     "captura": "Não"
+  },
+  {
+    "erro": "Configurar impostos IBS e CBS",
+    "mensagem": "Preenchimento de impostos novos para o cliente ibs e cbs",
+    "causa": "Cliente queria ajuda para parametrizar os novos impostos ibs e cbs no sistema para ela",
+    "resolucao": "Deixamos configurado com forme a demanda e solicitação do cliente e logo em seguida finalizamos",
+    "feedback": "Cliente agradecida(o)",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
   }
-  
 ]

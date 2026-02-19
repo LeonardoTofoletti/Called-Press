@@ -151,9 +151,22 @@ textarea { padding-right: 45px !important; }
   z-index: 9999;
 }
 
-.modal-body { color: black; }
-h5 { color: black; }
+/* Tema claro */
+body:not(.dark) .modal-body,
+body:not(.dark) .modal-body h5,
+body:not(.dark) .modal-body li {
+  color: #111 !important;
+}
+
+/* Tema escuro */
+body.dark .modal-body,
+body.dark .modal-body h5,
+body.dark .modal-body li {
+  color: #e6e6e6 !important;
+}
+
 li { margin-left: 10px; }
+
 
 @keyframes piscar {
   0%, 100% { background-color: #0dcaf0; }
@@ -373,44 +386,26 @@ body.dark .modal-content textarea::placeholder,
 body.dark .modal-content input::placeholder {
   color: #bfbfbf !important;
 }
-/* ===== Ajuste: Somente textos do modal no tema escuro ===== */
-body.dark #modalIA .modal-title,
-body.dark #modalIA .modal-body .form-label,
-body.dark #modalIA .modal-body p,
-body.dark #modalIA textarea::placeholder {
-  color: #bfbfbf !important;
+
+.custom-select .search-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid #444;
+  outline: none;
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+  border-radius: 10px 10px 0 0;
 }
 
-
-/* Garantir que o placeholder do textarea também fique mais claro no modal escuro (se quiser) */
-body.dark #modalIA textarea::placeholder {
-  color: #bfbfbf !important;
+body.light-mode .custom-select .search-input {
+  background-color: #ffffff;
+  color: #222;
+  border-bottom: 1px solid #ccc;
 }
 
-
-/* Botão "Analisar conversa (IA)" no tema claro */
-.btn[data-bs-target="#modalIA"] {
-  background-color: #6366F1 !important;
-  color: #000000 !important; /* TEXTO PRETO */
-  border: none !important;
-  border-radius: 8px !important;
-  transition: 0.25s ease;
+.custom-select .options-list div {
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
-/* Hover no tema claro */
-.btn[data-bs-target="#modalIA"]:hover {
-  background-color: #4F46E5 !important;
-  color: #000000 !important; /* mantém preto no hover */
-}
-
-/* Botão no tema escuro */
-body.dark .btn[data-bs-target="#modalIA"] {
-  background-color: #a5a7f1 !important;
-  color: #000000 !important; /* TEXTO PRETO TAMBÉM NO TEMA ESCURO */
-}
-
-/* Hover no tema escuro */
-body.dark .btn[data-bs-target="#modalIA"]:hover {
-  background-color: #4338CA !important;
-  color: #000000 !important;
-}
