@@ -125,7 +125,7 @@ function formatarTextoReconhecido(texto, campoVazio) {
     .replace(/\bCTe\b/gi, 'CT-E')
     .replace(/\bicms\b/gi, 'icms')
     .replace(/\bCTÉ\b/gi, 'CT-E')
-    .replace(/\bAD\b/gi, 'anydesk')
+    .replace(/\bAD\b/gi, 'AD')
     .replace(/\bpis\b/gi, 'pis')
     .replace(/\bconfins\b/gi, 'cofins')
     .replace(/\s+/g, ' ')
