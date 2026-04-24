@@ -131,6 +131,8 @@ function formatarTextoReconhecido(texto, campoVazio) {
     .replace(/\bunidesk\b/gi, 'AD')
     .replace(/\bunidesc\b/gi, 'AD')
     .replace(/\bndesk\b/gi, 'AD')
+    .replace(/\bN10\b/gi, 'AD')
+    .replace(/\bhd\b/gi, 'AD')
     .replace(/\banidesc\b/gi, 'AD')
     .replace(/\bpis\b/gi, 'pis')
     .replace(/\bconfins\b/gi, 'cofins')
