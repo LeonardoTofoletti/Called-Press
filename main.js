@@ -136,6 +136,14 @@ function formatarTextoReconhecido(texto, campoVazio) {
     .replace(/\banidesc\b/gi, 'AD')
     .replace(/\bpis\b/gi, 'pis')
     .replace(/\bconfins\b/gi, 'cofins')
+    .replace(/\bnota\b/gi, 'NF-E')
+    .replace(/\bga\b/gi, 'GA')
+    .replace(/\bG A\b/gi, 'GA')
+    .replace(/\bgea\b/gi, 'GA')
+    .replace(/\bgear\b/gi, 'GA')
+    .replace(/\bjean\b/gi, 'GA')
+    .replace(/\bnota\b/gi, 'NF-E')
+    .replace(/\bAE\b/gi, 'AE')
     .replace(/\s+/g, ' ')
     .trim();
 
