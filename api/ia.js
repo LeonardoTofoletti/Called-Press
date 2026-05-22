@@ -16,8 +16,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // Modelo mais estável
     const resposta = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
@@ -53,10 +54,18 @@ ${texto}`
 
     const data = await resposta.json();
 
-    console.log(data);
+    console.log('Gemini:', data);
 
-    // erro da API
+    // Se API retornar erro
     if (data.error) {
+
+      // fallback simples
+      if (data.error.code === 503) {
+        return res.status(200).json({
+          resultado: texto
+        });
+      }
+
       return res.status(500).json({
         erro: data.error.message
       });
