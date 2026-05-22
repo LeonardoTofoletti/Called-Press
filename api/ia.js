@@ -1,8 +1,15 @@
 export default async function handler(req, res) {
 
+  // Só aceita POST
+  if (req.method !== 'POST') {
+    return res.status(200).json({
+      status: 'API online'
+    });
+  }
+
   try {
 
-    const { texto } = req.body;
+    const texto = req.body?.texto;
 
     if (!texto) {
       return res.status(400).json({
@@ -15,47 +22,27 @@ export default async function handler(req, res) {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.HF_TOKEN}`,
+          'Authorization': `Bearer ${process.env.HF_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs:
-            `Melhore este texto de suporte técnico de forma profissional:\n\n${texto}`
+          inputs: `Melhore este texto:\n${texto}`
         })
       }
     );
 
-    const textoResposta = await resposta.text();
+    const data = await resposta.json();
 
-    console.log(textoResposta);
+    console.log(data);
 
-    let data;
-
-    try {
-      data = JSON.parse(textoResposta);
-    } catch {
-      return res.status(500).json({
-        erro: textoResposta
-      });
-    }
-
-    // erro da HF
     if (data.error) {
-
       return res.status(500).json({
         erro: data.error
       });
-
-    }
-
-    let resultado = texto;
-
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      resultado = data[0].generated_text;
     }
 
     return res.status(200).json({
-      resultado
+      resultado: data?.[0]?.generated_text || texto
     });
 
   } catch (err) {
