@@ -17,27 +17,36 @@ export default async function handler(req, res) {
     }
 
     const resposta = await fetch(
-      'https://router.huggingface.co/together/v1/chat/completions',
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.HF_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'mistralai/Mistral-7B-Instruct-v0.2',
-          messages: [
+          contents: [
             {
-              role: 'system',
-              content: 'Você melhora textos de suporte técnico deixando eles mais profissionais e claros.'
-            },
-            {
-              role: 'user',
-              content: texto
+              parts: [
+                {
+                  text:
+`Você é um assistente de suporte técnico.
+
+Reescreva o texto abaixo de forma:
+- profissional
+- clara
+- objetiva
+- corrigindo português
+
+Texto:
+${texto}`
+                }
+              ]
             }
           ],
-          max_tokens: 200,
-          temperature: 0.4
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 200
+          }
         })
       }
     );
@@ -46,14 +55,15 @@ export default async function handler(req, res) {
 
     console.log(data);
 
+    // erro da API
     if (data.error) {
       return res.status(500).json({
-        erro: data.error
+        erro: data.error.message
       });
     }
 
     const resultado =
-      data?.choices?.[0]?.message?.content || texto;
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || texto;
 
     return res.status(200).json({
       resultado
