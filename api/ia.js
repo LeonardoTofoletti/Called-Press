@@ -1,6 +1,5 @@
 export default async function handler(req, res) {
 
-  // Só aceita POST
   if (req.method !== 'POST') {
     return res.status(200).json({
       status: 'API online'
@@ -18,31 +17,49 @@ export default async function handler(req, res) {
     }
 
     const resposta = await fetch(
-      'https://api-inference.huggingface.co/models/gpt2',
+      'https://api-inference.huggingface.co/models/google/flan-t5-small',
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.HF_TOKEN}`,
+          Authorization: `Bearer ${process.env.HF_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: `Melhore este texto:\n${texto}`
+          inputs: `Reescreva este texto de suporte técnico de forma profissional:\n\n${texto}`
         })
       }
     );
 
     const data = await resposta.json();
 
-    console.log(data);
+    console.log('HF:', data);
 
+    // modelo carregando
+    if (data.error?.includes('loading')) {
+
+      return res.status(200).json({
+        resultado: texto
+      });
+
+    }
+
+    // erro HF
     if (data.error) {
+
       return res.status(500).json({
         erro: data.error
       });
+
+    }
+
+    let resultado = texto;
+
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      resultado = data[0].generated_text;
     }
 
     return res.status(200).json({
-      resultado: data?.[0]?.generated_text || texto
+      resultado
     });
 
   } catch (err) {
