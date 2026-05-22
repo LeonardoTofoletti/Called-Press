@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     }
 
     const resposta = await fetch(
-      'https://router.huggingface.co/hf-inference/models/google/flan-t5-small',
+      'https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta',
       {
         method: 'POST',
         headers: {
@@ -25,7 +25,11 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: `Reescreva profissionalmente:\n${texto}`
+          inputs: `<|system|>
+Você melhora textos de suporte técnico deixando mais profissional.</s>
+<|user|>
+${texto}</s>
+<|assistant|>`
         })
       }
     );
@@ -34,28 +38,20 @@ export default async function handler(req, res) {
 
     console.log(data);
 
-    // modelo carregando
-    if (data.error?.includes('loading')) {
-
-      return res.status(200).json({
-        resultado: 'Modelo carregando, tente novamente.'
-      });
-
-    }
-
-    // erro HF
     if (data.error) {
-
       return res.status(500).json({
         erro: data.error
       });
-
     }
 
     let resultado = texto;
 
     if (Array.isArray(data) && data[0]?.generated_text) {
-      resultado = data[0].generated_text;
+
+      resultado = data[0].generated_text
+        .replace(/<\|assistant\|>/g, '')
+        .trim();
+
     }
 
     return res.status(200).json({
