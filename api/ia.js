@@ -44,6 +44,9 @@ REGRAS OBRIGATÓRIAS:
 TAREFA:
 Reescreva o texto abaixo de forma profissional, clara e objetiva, corrigindo o português.
 
+IMPORTANTE:
+Responda em um único parágrafo contínuo, sem cortes.
+
 TEXTO:
 ${texto}
 `
