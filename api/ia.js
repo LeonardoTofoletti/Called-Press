@@ -8,7 +8,20 @@ export default async function handler(req, res) {
 
   try {
 
+    // Verifica token
+    if (!process.env.HF_TOKEN) {
+      return res.status(500).json({
+        erro: 'HF_TOKEN não configurado'
+      });
+    }
+
     const { texto } = req.body;
+
+    if (!texto) {
+      return res.status(400).json({
+        erro: 'Texto vazio'
+      });
+    }
 
     const resposta = await fetch(
       'https://api-inference.huggingface.co/models/google/flan-t5-base',
@@ -19,13 +32,23 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs:
-            `Melhore esse texto de suporte técnico deixando mais profissional:\n\n${texto}`
+          inputs: `Melhore esse texto de suporte técnico deixando mais profissional:\n\n${texto}`
         })
       }
     );
 
     const data = await resposta.json();
+
+    console.log('Resposta HuggingFace:', data);
+
+    // Se HuggingFace retornar erro
+    if (data.error) {
+
+      return res.status(500).json({
+        erro: data.error
+      });
+
+    }
 
     let resultado = texto;
 
@@ -39,11 +62,12 @@ export default async function handler(req, res) {
 
   } catch (err) {
 
-    console.error(err);
+    console.error('ERRO API IA:', err);
 
     return res.status(500).json({
-      erro: 'Erro interno'
+      erro: err.message || 'Erro interno'
     });
 
   }
+
 }
