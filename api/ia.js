@@ -47,6 +47,8 @@ Reescreva o texto abaixo de forma profissional, clara e objetiva, corrigindo o p
 IMPORTANTE:
 Responda em um único parágrafo contínuo, sem cortes.
 
+OBS: A abreviação AD é de Anydesk
+
 TEXTO:
 ${texto}
 `
