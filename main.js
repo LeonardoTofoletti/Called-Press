@@ -487,13 +487,13 @@ document.getElementById('btnIA').addEventListener('click', async () => {
 
   const agora = Date.now();
 
-  // Reinicia contador após 1 minuto
+  // Reinicia após 1 minuto
   if (agora - ultimaRequisicaoIA > 60000) {
     totalRequisicoes = 0;
     ultimaRequisicaoIA = agora;
   }
 
-  // Limite de 2 requisições por minuto
+  // Limite de 2 usos por minuto
   if (totalRequisicoes >= 2) {
     alert('Limite de IA atingido. Aguarde 1 minuto.');
     return;
@@ -508,13 +508,19 @@ document.getElementById('btnIA').addEventListener('click', async () => {
 
   for (const campo of campos) {
 
+    // Campo não existe
+    if (!campo) continue;
+
     const texto = campo.value.trim();
 
+    // Campo vazio
     if (!texto) continue;
 
     const original = texto;
 
-    campo.value = '⏳ Melhorando texto...';
+    // Feedback visual
+    campo.disabled = true;
+    campo.placeholder = '⏳ Melhorando texto...';
 
     try {
 
@@ -528,15 +534,30 @@ document.getElementById('btnIA').addEventListener('click', async () => {
         })
       });
 
+      // Erro HTTP
+      if (!resposta.ok) {
+        throw new Error(`Erro HTTP ${resposta.status}`);
+      }
+
       const data = await resposta.json();
 
+      console.log('Resposta IA:', data);
+
+      // Atualiza texto
       campo.value = data.resultado || original;
 
     } catch (err) {
 
+      console.error('Erro IA:', err);
+
       campo.value = original;
 
-      console.error(err);
+      alert('Erro ao usar IA.');
+
+    } finally {
+
+      campo.disabled = false;
+      campo.placeholder = '';
 
     }
 
