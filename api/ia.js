@@ -17,19 +17,27 @@ export default async function handler(req, res) {
     }
 
     const resposta = await fetch(
-      'https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta',
+      'https://router.huggingface.co/together/v1/chat/completions',
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.HF_TOKEN}`,
+          'Authorization': `Bearer ${process.env.HF_TOKEN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: `<|system|>
-Você melhora textos de suporte técnico deixando mais profissional.</s>
-<|user|>
-${texto}</s>
-<|assistant|>`
+          model: 'mistralai/Mistral-7B-Instruct-v0.2',
+          messages: [
+            {
+              role: 'system',
+              content: 'Você melhora textos de suporte técnico deixando eles mais profissionais e claros.'
+            },
+            {
+              role: 'user',
+              content: texto
+            }
+          ],
+          max_tokens: 200,
+          temperature: 0.4
         })
       }
     );
@@ -44,15 +52,8 @@ ${texto}</s>
       });
     }
 
-    let resultado = texto;
-
-    if (Array.isArray(data) && data[0]?.generated_text) {
-
-      resultado = data[0].generated_text
-        .replace(/<\|assistant\|>/g, '')
-        .trim();
-
-    }
+    const resultado =
+      data?.choices?.[0]?.message?.content || texto;
 
     return res.status(200).json({
       resultado
