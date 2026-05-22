@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     const resposta = await fetch(
-      'https://router.huggingface.co/hf-inference/models/google/flan-t5-small',
+      'https://api-inference.huggingface.co/models/gpt2',
       {
         method: 'POST',
         headers: {
