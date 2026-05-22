@@ -536,7 +536,8 @@ document.getElementById('btnIA').addEventListener('click', async () => {
 
       // Erro HTTP
       if (!resposta.ok) {
-        throw new Error(`Erro HTTP ${resposta.status}`);
+        const erroTexto = await resposta.text();
+        throw new Error(`Erro HTTP ${resposta.status} - ${erroTexto}`);
       }
 
       const data = await resposta.json();
