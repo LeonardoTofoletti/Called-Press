@@ -480,87 +480,78 @@ document.addEventListener('DOMContentLoaded', toggleUpsell);
 upsellRadios.forEach(radio => {
   radio.addEventListener('change', toggleUpsell);
 });
-let ultimaRequisicaoIA = 0;
-let totalRequisicoes = 0;
+let emProcessoIA = false;
 
-document.getElementById('btnIA').addEventListener('click', async () => {
+document.getElementById('btnIA').addEventListener('click', async (e) => {
 
-  const agora = Date.now();
+  if (emProcessoIA) return;
 
-  // Reinicia após 1 minuto
-  if (agora - ultimaRequisicaoIA > 60000) {
-    totalRequisicoes = 0;
-    ultimaRequisicaoIA = agora;
-  }
-
-  // Limite de 2 usos por minuto
-  if (totalRequisicoes >= 2) {
-    alert('Limite de IA atingido. Aguarde 1 minuto.');
-    return;
-  }
-
-  totalRequisicoes++;
+  const btn = e.currentTarget;
 
   const campos = [
     document.getElementById('problemCause'),
     document.getElementById('resolution')
   ];
 
-  for (const campo of campos) {
+  const textos = campos
+    .filter(c => c && c.value.trim())
+    .map(c => c.value.trim());
 
-    // Campo não existe
-    if (!campo) continue;
+  if (textos.length === 0) {
+    alert('Preencha pelo menos um campo para melhorar.');
+    return;
+  }
 
-    const texto = campo.value.trim();
+  emProcessoIA = true;
 
-    // Campo vazio
-    if (!texto) continue;
+  // UI de loading no botão
+  const textoOriginalBtn = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Melhorando...';
 
-    const original = texto;
+  try {
 
-    // Feedback visual
-    campo.disabled = true;
-    campo.placeholder = '⏳ Melhorando texto...';
+    for (const campo of campos) {
 
-    try {
+      if (!campo || !campo.value.trim()) continue;
 
-      const resposta = await fetch('/api/ia', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          texto: original
-        })
-      });
+      const original = campo.value.trim();
 
-      // Erro HTTP
-      if (!resposta.ok) {
-        const erroTexto = await resposta.text();
-        throw new Error(`Erro HTTP ${resposta.status} - ${erroTexto}`);
+      campo.disabled = true;
+
+      try {
+
+        const resposta = await fetch('/api/ia', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            texto: original
+          })
+        });
+
+        if (!resposta.ok) {
+          throw new Error('Erro na API');
+        }
+
+        const data = await resposta.json();
+
+        campo.value = data.resultado || original;
+
+      } catch (err) {
+        console.error(err);
       }
 
-      const data = await resposta.json();
-
-      console.log('Resposta IA:', data);
-
-      // Atualiza texto
-      campo.value = data.resultado || original;
-
-    } catch (err) {
-
-      console.error('Erro IA:', err);
-
-      campo.value = original;
-
-      alert('Erro ao usar IA.');
-
-    } finally {
-
       campo.disabled = false;
-      campo.placeholder = '';
-
     }
+
+  } finally {
+
+    // libera tudo no final
+    btn.disabled = false;
+    btn.innerHTML = textoOriginalBtn;
+    emProcessoIA = false;
 
   }
 
