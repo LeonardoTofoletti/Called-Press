@@ -16,7 +16,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Modelo mais estável
     const resposta = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -27,26 +26,35 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [
             {
+              role: "user",
               parts: [
                 {
-                  text:
-`Você é um assistente de suporte técnico.
+                  text: `
+Você é um sistema de reescrita de texto.
 
-Reescreva o texto abaixo de forma:
-- profissional
-- clara
-- objetiva
-- corrigindo português
+REGRAS OBRIGATÓRIAS:
+- NÃO converse
+- NÃO explique nada
+- NÃO cumprimente o usuário
+- NÃO use frases como "Com certeza", "Claro", etc
+- NÃO adicione comentários
+- NÃO use aspas
+- Responda APENAS com o texto reescrito
 
-Texto:
-${texto}`
+TAREFA:
+Reescreva o texto abaixo de forma profissional, clara e objetiva, corrigindo o português.
+
+TEXTO:
+${texto}
+`
                 }
               ]
             }
           ],
           generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 200
+            temperature: 0.2,
+            maxOutputTokens: 200,
+            topP: 0.8
           }
         })
       }
@@ -56,10 +64,8 @@ ${texto}`
 
     console.log('Gemini:', data);
 
-    // Se API retornar erro
     if (data.error) {
 
-      // fallback simples
       if (data.error.code === 503) {
         return res.status(200).json({
           resultado: texto
@@ -72,7 +78,7 @@ ${texto}`
     }
 
     const resultado =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text || texto;
+      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || texto;
 
     return res.status(200).json({
       resultado
