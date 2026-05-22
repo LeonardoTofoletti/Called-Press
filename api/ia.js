@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     }
 
     const resposta = await fetch(
-      'https://api-inference.huggingface.co/models/google/flan-t5-small',
+      'https://router.huggingface.co/hf-inference/models/google/flan-t5-small',
       {
         method: 'POST',
         headers: {
@@ -25,20 +25,20 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: `Reescreva este texto de suporte técnico de forma profissional:\n\n${texto}`
+          inputs: `Reescreva profissionalmente:\n${texto}`
         })
       }
     );
 
     const data = await resposta.json();
 
-    console.log('HF:', data);
+    console.log(data);
 
     // modelo carregando
     if (data.error?.includes('loading')) {
 
       return res.status(200).json({
-        resultado: texto
+        resultado: 'Modelo carregando, tente novamente.'
       });
 
     }
