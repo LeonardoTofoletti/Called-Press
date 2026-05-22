@@ -33,15 +33,6 @@ const btnAtualizacoes = document.getElementById('novasAtualizacoes');
 const ATUALIZACAO_KEY = 'jaViuAtualizacao';
 let VERSAO_ATUALIZACAO = '27-10-2025'; // atualize sempre que tiver novidade
 
-const jaViu = localStorage.getItem(ATUALIZACAO_KEY);
-if (jaViu !== VERSAO_ATUALIZACAO) {
-  btnAtualizacoes.classList.add('btn-piscar');
-}
-
-btnAtualizacoes.addEventListener('click', () => {
-  localStorage.setItem(ATUALIZACAO_KEY, VERSAO_ATUALIZACAO);
-  btnAtualizacoes.classList.remove('btn-piscar');
-});
 
 // ---- Verifica automaticamente nova versão do site ----
 fetch('/version.json')
