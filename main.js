@@ -480,3 +480,43 @@ document.addEventListener('DOMContentLoaded', toggleUpsell);
 upsellRadios.forEach(radio => {
   radio.addEventListener('change', toggleUpsell);
 });
+document.getElementById('btnIA').addEventListener('click', async () => {
+
+  const campo = document.getElementById('problemCause');
+
+  if (!campo.value.trim()) {
+    alert('Digite um texto primeiro');
+    return;
+  }
+
+  const original = campo.value;
+
+  campo.value = '⏳ Melhorando texto...';
+
+  try {
+
+    const resposta = await fetch('/api/ia', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        texto: original
+      })
+    });
+
+    const data = await resposta.json();
+
+    campo.value = data.resultado || original;
+
+  } catch (err) {
+
+    campo.value = original;
+
+    alert('Erro ao usar IA');
+
+    console.error(err);
+
+  }
+
+});
