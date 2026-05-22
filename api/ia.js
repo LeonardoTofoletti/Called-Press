@@ -52,9 +52,9 @@ ${texto}
             }
           ],
           generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 200,
-            topP: 0.8
+            temperature: 0.3,
+            maxOutputTokens: 800,
+            topP: 1
           }
         })
       }
