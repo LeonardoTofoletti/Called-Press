@@ -480,42 +480,65 @@ document.addEventListener('DOMContentLoaded', toggleUpsell);
 upsellRadios.forEach(radio => {
   radio.addEventListener('change', toggleUpsell);
 });
+let ultimaRequisicaoIA = 0;
+let totalRequisicoes = 0;
+
 document.getElementById('btnIA').addEventListener('click', async () => {
 
-  const campo = document.getElementById('problemCause');
+  const agora = Date.now();
 
-  if (!campo.value.trim()) {
-    alert('Digite um texto primeiro');
+  // Reinicia contador após 1 minuto
+  if (agora - ultimaRequisicaoIA > 60000) {
+    totalRequisicoes = 0;
+    ultimaRequisicaoIA = agora;
+  }
+
+  // Limite de 2 requisições por minuto
+  if (totalRequisicoes >= 2) {
+    alert('Limite de IA atingido. Aguarde 1 minuto.');
     return;
   }
 
-  const original = campo.value;
+  totalRequisicoes++;
 
-  campo.value = '⏳ Melhorando texto...';
+  const campos = [
+    document.getElementById('problemCause'),
+    document.getElementById('resolution')
+  ];
 
-  try {
+  for (const campo of campos) {
 
-    const resposta = await fetch('/api/ia', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        texto: original
-      })
-    });
+    const texto = campo.value.trim();
 
-    const data = await resposta.json();
+    if (!texto) continue;
 
-    campo.value = data.resultado || original;
+    const original = texto;
 
-  } catch (err) {
+    campo.value = '⏳ Melhorando texto...';
 
-    campo.value = original;
+    try {
 
-    alert('Erro ao usar IA');
+      const resposta = await fetch('/api/ia', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          texto: original
+        })
+      });
 
-    console.error(err);
+      const data = await resposta.json();
+
+      campo.value = data.resultado || original;
+
+    } catch (err) {
+
+      campo.value = original;
+
+      console.error(err);
+
+    }
 
   }
 
