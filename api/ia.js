@@ -1,5 +1,4 @@
 const limiteRequests = new Map();
-
 export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
@@ -9,8 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-
-    const ip =
+          const ip =
       req.headers['x-forwarded-for'] ||
       req.socket?.remoteAddress ||
       'desconhecido';
@@ -33,16 +31,13 @@ export default async function handler(req, res) {
     limiteRequests.set(ip, dados);
 
     console.log('IP:', ip, 'Requests:', dados.count);
-
     // limite de 2 requisições por minuto
     if (dados.count > 2) {
       return res.status(429).json({
         erro: 'Limite de 2 requisições por minuto atingido.'
       });
     }
-
     const texto = req.body?.texto;
-    const tipo = req.body?.tipo || 'melhorar';
 
     if (!texto) {
       return res.status(400).json({
@@ -50,75 +45,20 @@ export default async function handler(req, res) {
       });
     }
 
-    let prompt = '';
-
-    // =========================
-    // GERADOR AUTOMÁTICO
-    // =========================
-    if (tipo === 'gerador') {
-
-      prompt = `
-Você é um assistente especializado em resumir atendimentos de suporte técnico.
-
-OBJETIVO:
-Ler uma conversa completa de atendimento (CTRL+A do chat) e gerar SOMENTE informações úteis para abertura de chamado técnico.
-
-REGRAS IMPORTANTES:
-- Ignore cumprimentos
-- Ignore emojis
-- Ignore mensagens sem contexto
-- Ignore frases como:
-  "ok"
-  "obrigado"
-  "Responder"
-  "bom dia"
-  "boa tarde"
-  "LTR"
-  "👍"
-- Ignore conversas paralelas
-- NÃO invente informações
-- NÃO preencha campos sem informação clara
-- Foque no problema real e na solução aplicada
-
-RETORNO:
-Responda APENAS em JSON válido.
-
-ESTRUTURA:
-{
-  "problema": "",
-  "resolucao": "",
-  "feedback": "",
-  "erro": ""
-}
-
-REGRAS DOS CAMPOS:
-- problema:
-Resumo técnico do problema relatado pelo cliente.
-
-- resolucao:
-Resumo técnico do que foi feito.
-
-- feedback:
-Somente se houver confirmação/satisfação do cliente.
-
-- erro:
-Somente se existir mensagem de erro explícita.
-
-IMPORTANTE:
-- O campo mais importante é "problema"
-- O segundo mais importante é "resolucao"
-- Se não encontrar algo, deixe vazio ""
-
-CONVERSA:
-${texto}
-`;
-
-    } else {
-
-      // =========================
-      // MELHORAR TEXTO
-      // =========================
-      prompt = `
+    const resposta = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `
 Você é um sistema de reescrita de texto.
 
 REGRAS OBRIGATÓRIAS:
@@ -136,36 +76,17 @@ Reescreva o texto abaixo de forma profissional, clara e objetiva, corrigindo o p
 IMPORTANTE:
 Responda em um único parágrafo contínuo, sem cortes.
 
-OBS:
+OBS: 
 - A abreviação AD é de Anydesk
 - OS é ordem de serviço
-
 TEXTO:
 ${texto}
-`;
-
-    }
-
-    const resposta = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: prompt
+`
                 }
               ]
             }
           ],
           generationConfig: {
-            responseMimeType: "application/json",
             temperature: 0.3,
             maxOutputTokens: 2000,
             topP: 1
