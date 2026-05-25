@@ -581,30 +581,30 @@ document.getElementById('gerarAutomatico').addEventListener('click', async () =>
 
     let resultado;
 
-try {
-
-  let textoLimpo = data.resultado
-    .replace(/```json/g, '')
-    .replace(/```/g, '')
-    .trim();
-
-  const inicio = textoLimpo.indexOf('{');
-  const fim = textoLimpo.lastIndexOf('}');
-
-  if (inicio !== -1 && fim !== -1) {
-    textoLimpo = textoLimpo.substring(inicio, fim + 1);
-  }
-
-  resultado = JSON.parse(textoLimpo);
-
-} catch (e) {
-
-  console.error('Erro JSON IA:', data.resultado);
-
-  alert('A IA retornou um formato inválido.');
-
-  return;
-}
+    try {
+    
+      let textoLimpo = data.resultado
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
+    
+      const inicio = textoLimpo.indexOf('{');
+      const fim = textoLimpo.lastIndexOf('}');
+    
+      if (inicio !== -1 && fim !== -1) {
+        textoLimpo = textoLimpo.substring(inicio, fim + 1);
+      }
+    
+      resultado = JSON.parse(textoLimpo);
+    
+    } catch (e) {
+    
+      console.error('Erro JSON IA:', data.resultado);
+    
+      alert('A IA retornou um formato inválido.');
+    
+      return;
+    }
 
     if (resultado.erro) {
       document.getElementById('errorMessage').value = resultado.erro;
