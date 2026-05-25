@@ -12,24 +12,25 @@ export default async function handler(req, res) {
       req.headers['x-forwarded-for'] ||
       req.socket?.remoteAddress ||
       'desconhecido';
-      
+
     const agora = Date.now();
-      
+
     const dados = limiteRequests.get(ip) || {
       count: 0,
       tempo: agora
     };
-    
+
     // reset após 1 minuto
     if (agora - dados.tempo > 60000) {
       dados.count = 0;
       dados.tempo = agora;
     }
-    
+
     dados.count++;
-    
+
     limiteRequests.set(ip, dados);
-    
+
+    console.log('IP:', ip, 'Requests:', dados.count);
     // limite de 2 requisições por minuto
     if (dados.count > 2) {
       return res.status(429).json({
@@ -75,8 +76,9 @@ Reescreva o texto abaixo de forma profissional, clara e objetiva, corrigindo o p
 IMPORTANTE:
 Responda em um único parágrafo contínuo, sem cortes.
 
-OBS: A abreviação AD é de Anydesk
-
+OBS: 
+- A abreviação AD é de Anydesk
+- OS é ordem de serviço
 TEXTO:
 ${texto}
 `
