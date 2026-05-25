@@ -165,8 +165,9 @@ ${texto}
             }
           ],
           generationConfig: {
+            responseMimeType: "application/json",
             temperature: 0.3,
-            maxOutputTokens: 800,
+            maxOutputTokens: 2000,
             topP: 1
           }
         })

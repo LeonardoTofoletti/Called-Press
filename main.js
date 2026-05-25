@@ -550,8 +550,8 @@ document.getElementById('btnIA').addEventListener('click', async (e) => {
 });
 // ---- Gerador automático por conversa ----
 
+// ---- Gerador automático por conversa ----
 document.getElementById('gerarAutomatico').addEventListener('click', async () => {
-
   const texto = document.getElementById('chatCompleto').value.trim();
 
   if (!texto) {
@@ -560,12 +560,10 @@ document.getElementById('gerarAutomatico').addEventListener('click', async () =>
   }
 
   const btn = document.getElementById('gerarAutomatico');
-
   btn.disabled = true;
   btn.innerHTML = '⏳ Gerando...';
 
   try {
-
     const resposta = await fetch('/api/ia', {
       method: 'POST',
       headers: {
@@ -578,81 +576,65 @@ document.getElementById('gerarAutomatico').addEventListener('click', async () =>
     });
 
     const data = await resposta.json();
-
     let resultado;
 
     try {
-    
-      let textoLimpo = data.resultado
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
-    
+      // Pega o retorno bruto da IA
+      let textoLimpo = data.resultado.trim();
+
+      // Encontra onde começa e termina o JSON legítimo
       const inicio = textoLimpo.indexOf('{');
       const fim = textoLimpo.lastIndexOf('}');
-    
+
       if (inicio !== -1 && fim !== -1) {
+        // Recorta apenas o objeto JSON, jogando fora textinhos da IA ou ```json
         textoLimpo = textoLimpo.substring(inicio, fim + 1);
       }
-    
+
       resultado = JSON.parse(textoLimpo);
-    
+
     } catch (e) {
-    
-      console.error('Erro JSON IA:', data.resultado);
-    
-      alert('A IA retornou um formato inválido.');
-    
+      console.error('Erro ao processar JSON da IA:', data.resultado, e);
+      alert('A IA retornou um formato inválido. Tente novamente.');
       return;
     }
 
+    // Preenche os campos apenas se eles existirem no JSON
     if (resultado.erro) {
       document.getElementById('errorMessage').value = resultado.erro;
     }
-
     if (resultado.problema) {
       document.getElementById('problemCause').value = resultado.problema;
     }
-
     if (resultado.resolucao) {
       document.getElementById('resolution').value = resultado.resolucao;
     }
-
     if (resultado.feedback) {
       document.getElementById('clientFeedback').value = resultado.feedback;
     }
 
-    // limpa o CTRL+A
+    // Limpa o campo de texto do chat
     document.getElementById('chatCompleto').value = '';
 
-    // resize automático
-    ['problemCause', 'resolution', 'clientFeedback']
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) autoResize(el);
-      });
+    // Redimensiona os campos automaticamente para caber o texto novo
+    ['problemCause', 'resolution', 'clientFeedback'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) autoResize(el);
+    });
 
-    // toast
+    // Feedback visual de sucesso (Toast)
     const msg = document.getElementById('copyMessage');
     msg.innerText = '✨ Chamado gerado!';
     msg.style.opacity = '1';
-
-    setTimeout(() => {
-      msg.style.opacity = '0';
-    }, 1500);
+    setTimeout(() => { msg.style.opacity = '0'; }, 1500);
 
   } catch (err) {
-
     console.error(err);
-    alert('Erro ao gerar chamado.');
-
+    alert('Erro ao se comunicar com a API da IA.');
   } finally {
-
     btn.disabled = false;
     btn.innerHTML = '✨ Gerar automaticamente';
-
   }
-
 });
 // ---- Mostrar/Ocultar gerador automático ----
 
