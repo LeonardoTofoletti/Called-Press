@@ -547,3 +547,140 @@ document.getElementById('btnIA').addEventListener('click', async (e) => {
   }
 
 });
+// ---- Gerador automático por conversa ----
+
+document.getElementById('gerarAutomatico').addEventListener('click', () => {
+
+  const texto = document.getElementById('chatCompleto').value;
+
+  if (!texto.trim()) {
+    alert('Cole uma conversa.');
+    return;
+  }
+
+  // Tipo chamado
+  let tipo = 'Problema';
+
+  if (
+    texto.toLowerCase().includes('duvida') ||
+    texto.toLowerCase().includes('como faço')
+  ) {
+    tipo = 'Dúvida';
+  }
+
+  mostrarTela(tipo.toLowerCase().replace('ú', 'u'));
+
+  // Número documento
+  const numeroDoc =
+    texto.match(/\b\d{2,}\b/g)?.[0] || '';
+
+  // Erro
+  let erro = '';
+
+  const erroMatch =
+    texto.match(/erro[:\s].*/i);
+
+  if (erroMatch) {
+    erro = erroMatch[0];
+  }
+
+  // Detecta resolução
+  let resolucao = '';
+
+  if (texto.toLowerCase().includes('autorizada')) {
+    resolucao =
+      'Realizado ajuste no sistema e nota autorizada com sucesso.';
+  }
+
+  if (texto.toLowerCase().includes('cancelamento')) {
+    resolucao +=
+      ' Orientado cliente sobre cancelamento da nota.';
+  }
+
+  // Detecta causa
+  let causa = '';
+
+  if (texto.toLowerCase().includes('cst')) {
+    causa =
+      'Cliente estava utilizando CST incorreta para consumidor não contribuinte.';
+  }
+
+  if (texto.toLowerCase().includes('rps')) {
+    causa +=
+      ' Cliente aguardando liberação do RPS na prefeitura.';
+  }
+
+  // Feedback
+  let feedback =
+    'Cliente compreendeu as orientações e acompanhou os procedimentos realizados.';
+
+  // Humor
+  let humor = 'Bom';
+
+  if (
+    texto.toLowerCase().includes('demorando demais')
+  ) {
+    humor = 'Regular';
+  }
+
+  // Captura
+  let captura = 'Não';
+
+  if (
+    texto.toLowerCase().includes('print') ||
+    texto.toLowerCase().includes('download')
+  ) {
+    captura = 'Sim';
+  }
+
+  // Preenche campos
+  document.getElementById('docNumber').value = numeroDoc;
+  document.getElementById('errorMessage').value = erro;
+  document.getElementById('problemCause').value = causa;
+  document.getElementById('resolution').value = resolucao;
+  document.getElementById('clientFeedback').value = feedback;
+  document.getElementById('humorSelection').value = humor;
+
+  document.querySelector(
+    `input[name="captura"][value="${captura}"]`
+  ).checked = true;
+
+  document.querySelector(
+    `input[name="upsell"][value="Não"]`
+  ).checked = true;
+
+  // Auto resize
+  ['problemCause', 'resolution', 'clientFeedback']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) autoResize(el);
+    });
+
+  // Toast
+  const msg = document.getElementById('copyMessage');
+  msg.innerText = 'Chamado gerado automaticamente!';
+  msg.style.opacity = '1';
+
+  setTimeout(() => {
+    msg.style.opacity = '0';
+  }, 2000);
+
+});
+// ---- Mostrar/Ocultar gerador automático ----
+
+const toggleGerador = document.getElementById('toggleGerador');
+const geradorContainer = document.getElementById('geradorContainer');
+
+toggleGerador.addEventListener('change', () => {
+
+  if (toggleGerador.checked) {
+
+    geradorContainer.style.display = 'block';
+
+  } else {
+
+    geradorContainer.style.display = 'none';
+
+  }
+
+});
