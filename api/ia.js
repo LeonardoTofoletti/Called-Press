@@ -1,3 +1,4 @@
+const limiteRequests = new Map();
 export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
@@ -7,7 +8,34 @@ export default async function handler(req, res) {
   }
 
   try {
-
+          const ip =
+      req.headers['x-forwarded-for'] ||
+      req.socket?.remoteAddress ||
+      'desconhecido';
+      
+    const agora = Date.now();
+      
+    const dados = limiteRequests.get(ip) || {
+      count: 0,
+      tempo: agora
+    };
+    
+    // reset após 1 minuto
+    if (agora - dados.tempo > 60000) {
+      dados.count = 0;
+      dados.tempo = agora;
+    }
+    
+    dados.count++;
+    
+    limiteRequests.set(ip, dados);
+    
+    // limite de 2 requisições por minuto
+    if (dados.count > 2) {
+      return res.status(429).json({
+        erro: 'Limite de 2 requisições por minuto atingido.'
+      });
+    }
     const texto = req.body?.texto;
 
     if (!texto) {
