@@ -59,26 +59,39 @@ export default async function handler(req, res) {
               parts: [
                 {
                   text: `
-Você é um sistema de reescrita de texto.
+Você é um sistema de melhoria de textos técnicos.
 
 REGRAS OBRIGATÓRIAS:
 - NÃO converse
 - NÃO explique nada
-- NÃO cumprimente o usuário
-- NÃO use frases como "Com certeza", "Claro", etc
-- NÃO adicione comentários
-- NÃO use aspas
-- Responda APENAS com o texto reescrito
+- NÃO use markdown
+- NÃO use \`\`\`
+- NÃO use aspas fora do JSON
+- Retorne SOMENTE JSON válido
 
 TAREFA:
-Reescreva o texto abaixo de forma profissional, clara e objetiva, corrigindo o português.
+Melhore os textos abaixo de forma:
+- profissional
+- clara
+- objetiva
+- corrigindo português
 
 IMPORTANTE:
-Responda em um único parágrafo contínuo, sem cortes.
+- Não invente informações
+- Mantenha o sentido original
+- Pode resumir levemente se necessário
 
-OBS: 
-- A abreviação AD é de Anydesk
-- OS é ordem de serviço
+RETORNE EXATAMENTE NESTE FORMATO:
+
+{
+  "problema": "...",
+  "resolucao": "..."
+}
+
+OBS:
+- AD = Anydesk
+- OS = ordem de serviço
+
 TEXTO:
 ${texto}
 `
