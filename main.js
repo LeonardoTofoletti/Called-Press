@@ -82,8 +82,16 @@ document.getElementById('copyBtn').addEventListener('click', () => {
 
 // ---- Auto Resize ----
 const autoResize = (el) => {
+
+  if (!el) return;
+
   el.style.height = 'auto';
-  el.style.height = (el.scrollHeight) + 'px';
+
+  // força recalcular
+  requestAnimationFrame(() => {
+    el.style.height = el.scrollHeight + 'px';
+  });
+
 };
 
 const camposAutoResize = ['resolution', 'upsellDesc', 'duvidaExplicacao', 'contatoRelato'];

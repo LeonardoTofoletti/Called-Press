@@ -126,8 +126,11 @@ input[type="radio"].form-check-input:checked::after {
 body.dark input[type="radio"].form-check-input { border-color: #eee; }
 body.dark input[type="radio"].form-check-input:checked::after { background-color: #fff; }
 
-textarea { overflow: hidden; resize: none; }
-
+textarea.form-control {
+  overflow-y: auto !important;
+  resize: none;
+  max-height: 300px;
+}
 /* Evita que o texto fique por baixo do microfone */
 .mic-btn + textarea,
 textarea { padding-right: 45px !important; }
@@ -407,4 +410,40 @@ body.light-mode .custom-select .search-input {
 .custom-select .options-list div {
   padding: 8px 12px;
   cursor: pointer;
+}
+/* ===== Scrollbar moderna textarea ===== */
+
+textarea.form-control::-webkit-scrollbar {
+  width: 10px;
+}
+
+textarea.form-control::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+textarea.form-control::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+textarea.form-control::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* Tema claro */
+body.light-mode textarea.form-control::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.18);
+}
+
+body.light-mode textarea.form-control::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.35);
+}
+textarea.form-control {
+  overflow-y: auto !important;
+  resize: none;
+  max-height: 300px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.25) transparent;
 }
