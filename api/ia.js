@@ -88,7 +88,7 @@ ${texto}
           ],
           generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 1200,
+            maxOutputTokens: 2000,
             topP: 1
           }
         })
