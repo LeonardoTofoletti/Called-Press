@@ -79,6 +79,7 @@ Responda em um único parágrafo contínuo, sem cortes.
 OBS: 
 - A abreviação AD é de Anydesk
 - OS é ordem de serviço
+- Manifesto é MDF-e
 TEXTO:
 ${texto}
 `
