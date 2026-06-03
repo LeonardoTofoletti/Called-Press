@@ -1,561 +1,520 @@
-// ---- Mudar de tela ----
-function mostrarTela(tipo) {
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tipo-chamado button').forEach(b => b.classList.remove('ativo'));
-  document.getElementById('tela-' + tipo).classList.add('active');
-  document.getElementById('btn-' + tipo).classList.add('ativo');
-}
+/* =============================================
+   CALLED PRESS — main.js (refatorado)
+   ============================================= */
 
-// ---- Dark Mode ----
+// ─── TEMA ─────────────────────────────────────────
+const html = document.documentElement;
 const darkSwitch = document.getElementById('darkSwitch');
 const iconMoon = document.getElementById('iconMoon');
 const iconSun = document.getElementById('iconSun');
 
 function applyTheme(theme) {
-  document.body.classList.toggle('dark', theme === 'dark');
-  document.body.classList.toggle('light-mode', theme !== 'dark'); // garante que light-mode exista
+  html.setAttribute('data-theme', theme);
   iconMoon.classList.toggle('d-none', theme === 'dark');
   iconSun.classList.toggle('d-none', theme !== 'dark');
 }
 
-
-let theme = localStorage.getItem('theme') || 'light';
+let theme = localStorage.getItem('theme') || 'dark';
 applyTheme(theme);
 
 darkSwitch.addEventListener('click', () => {
-  theme = theme === 'light' ? 'dark' : 'light';
+  theme = theme === 'dark' ? 'light' : 'dark';
   localStorage.setItem('theme', theme);
   applyTheme(theme);
 });
 
-// ---- Botão de Novas Atualizações piscando ----
-const btnAtualizacoes = document.getElementById('novasAtualizacoes');
-const ATUALIZACAO_KEY = 'jaViuAtualizacao';
-let VERSAO_ATUALIZACAO = '27-10-2025'; // atualize sempre que tiver novidade
+// ─── TROCAR TELA ──────────────────────────────────
+function mostrarTela(tipo) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('tela-' + tipo).classList.add('active');
+  document.getElementById('btn-' + tipo).classList.add('ativo');
+}
 
+// ─── TOAST ────────────────────────────────────────
+const toastEl = document.getElementById('toast');
+let toastTimer;
 
-// ---- Verifica automaticamente nova versão do site ----
-fetch('/version.json')
-  .then(res => res.json())
-  .then(data => {
-    if (data.versao !== VERSAO_ATUALIZACAO) {
-      VERSAO_ATUALIZACAO = data.versao;
-    }
-  })
-  .catch(err => console.warn('Não foi possível verificar a versão do site:', err));
+function showToast(msg, tipo = 'ok') {
+  clearTimeout(toastTimer);
+  toastEl.textContent = msg;
+  toastEl.style.background = tipo === 'erro' ? '#7f1d1d' : tipo === 'aviso' ? '#78350f' : '#1a1a2e';
+  toastEl.style.borderColor = tipo === 'erro' ? 'rgba(239,68,68,0.4)' : tipo === 'aviso' ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.08)';
+  toastEl.classList.add('show');
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+}
 
-// ---- Copiar textos ----
-document.getElementById('copyBtn').addEventListener('click', () => {
-  const ativo = document.querySelector('.tipo-chamado button.ativo').textContent;
-  let texto = `TIPO DE CHAMADO: ${ativo}\n\n`;
-
-  if (ativo === 'Problema') {
-    if (docNumber.value) texto += `NÚMERO DO DOCUMENTO: ${docNumber.value}\n\n`;
-    if (errorMessage.value) texto += `MENSAGEM DE ERRO: ${errorMessage.value}\n\n`;
-    if (problemCause.value) texto += `CAUSA DO PROBLEMA / DUVIDA: ${problemCause.value}\n\n`;
-    if (resolution.value) texto += `RESOLUÇÃO: ${resolution.value}\n\n`;
-  } else if (ativo === 'Dúvida') {
-    if (duvidaCliente.value) texto += `DÚVIDA DO CLIENTE: ${duvidaCliente.value}\n\n`;
-    if (duvidaExplicacao.value) texto += `EXPLICAÇÃO: ${duvidaExplicacao.value}\n\n`;
-  } else {
-    if (contatoRelato.value) texto += `RELATO DO CONTATO: ${contatoRelato.value}\n\n`;
-  }
-
-  if (clientFeedback.value) texto += `FEEDBACK DO CLIENTE: ${clientFeedback.value}\n\n`;
-  if (humorSelection.value) texto += `HUMOR DO CLIENTE: ${humorSelection.value}\n\n`;
-
-  const upsell = document.querySelector('input[name="upsell"]:checked')?.value;
-  const captura = document.querySelector('input[name="captura"]:checked')?.value;
-
-  if (upsell) texto += `UPSELL: ${upsell}\n\n`;
-  if (upsellDesc.value) texto += `DESCRIÇÃO UPSELL: ${upsellDesc.value}\n\n`;
-  if (captura) texto += `MENSAGENS OU PRINT DE ERROS: ${captura}`;
-
-  navigator.clipboard.writeText(texto).then(() => {
-    const msg = document.getElementById('copyMessage');
-    msg.style.opacity = '1';
-    setTimeout(() => { msg.style.opacity = '0'; }, 1500);
-
-    document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
-  });
-});
-
-// ---- Auto Resize ----
-const autoResize = (el) => {
-
+// ─── AUTO RESIZE ──────────────────────────────────
+function autoResize(el) {
   if (!el) return;
-
   el.style.height = 'auto';
+  requestAnimationFrame(() => { el.style.height = el.scrollHeight + 'px'; });
+}
 
-  // força recalcular
-  requestAnimationFrame(() => {
-    el.style.height = el.scrollHeight + 'px';
+// ─── CACHE (histórico de digitação) ───────────────
+const CACHE_PREFIX = 'cp_cache_';
+const CACHE_LIMIT = 20;
+
+function cacheGet(id) {
+  try { return JSON.parse(localStorage.getItem(CACHE_PREFIX + id) || '[]'); }
+  catch { return []; }
+}
+
+function cachePush(id, value) {
+  if (!value || !value.trim()) return;
+  let list = cacheGet(id);
+  const v = value.trim();
+  if (list.includes(v)) return;
+  list.push(v);
+  if (list.length > CACHE_LIMIT) list = list.slice(-CACHE_LIMIT);
+  localStorage.setItem(CACHE_PREFIX + id, JSON.stringify(list));
+}
+
+function cacheAll() {
+  return Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+}
+
+// ─── AUTOCOMPLETE (sugestões de histórico) ─────────
+function criarAutocomplete(campo) {
+  if (!campo || !campo.id) return;
+  const wrap = campo.closest('.textarea-wrap') || campo.parentElement;
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'cache-dropdown d-none';
+  wrap.appendChild(dropdown);
+
+  // posicionar abaixo do campo
+  wrap.style.position = 'relative';
+
+  let idx = -1;
+
+  function mostrar(filtro) {
+    const lista = cacheGet(campo.id)
+      .filter(v => v.toLowerCase().includes(filtro.toLowerCase()))
+      .slice(-20).reverse();
+    if (!lista.length) { dropdown.classList.add('d-none'); return; }
+    dropdown.innerHTML = '';
+    lista.forEach((v, i) => {
+      const d = document.createElement('div');
+      d.textContent = v;
+      d.addEventListener('mousedown', e => {
+        e.preventDefault();
+        campo.value = v;
+        autoResize(campo);
+        dropdown.classList.add('d-none');
+      });
+      dropdown.appendChild(d);
+    });
+    dropdown.classList.remove('d-none');
+    idx = -1;
+  }
+
+  function destacar() {
+    const items = dropdown.querySelectorAll('div');
+    items.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  campo.addEventListener('focus', () => mostrar(campo.value));
+  campo.addEventListener('input', () => { mostrar(campo.value); autoResize(campo); });
+
+  campo.addEventListener('keydown', e => {
+    const items = dropdown.querySelectorAll('div');
+    if (dropdown.classList.contains('d-none') || !items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % items.length; destacar(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; destacar(); }
+    else if (e.key === 'Enter' && idx >= 0) {
+      e.preventDefault();
+      campo.value = items[idx].textContent;
+      autoResize(campo);
+      dropdown.classList.add('d-none');
+    } else if (e.key === 'Escape') { dropdown.classList.add('d-none'); }
   });
 
-};
+  campo.addEventListener('blur', () => {
+    setTimeout(() => dropdown.classList.add('d-none'), 150);
+    cachePush(campo.id, campo.value);
+  });
 
-const camposAutoResize = ['resolution', 'upsellDesc', 'duvidaExplicacao', 'contatoRelato'];
-camposAutoResize.forEach(id => {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener('input', () => autoResize(el));
-    autoResize(el);
-  }
-});
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target)) dropdown.classList.add('d-none');
+  });
+}
 
-// ---- Formatação de texto reconhecido ----
-function formatarTextoReconhecido(texto, campoVazio) {
-  texto = texto
-    .replace(/\bvírgula\b/gi, ',')
-    .replace(/\bponto e vírgula\b/gi, ';')
-    .replace(/\bponto\b/gi, '.')
-    .replace(/\bdois pontos\b/gi, ':')
-    .replace(/\binterrogação\b/gi, '?')
-    .replace(/\bexclamação\b/gi, '!')
-    .replace(/\bnf\b/gi, 'NF-E')
-    .replace(/\bcli\b/gi, 'cliente')
-    .replace(/\bobs\b/gi, 'observação')
-    .replace(/\bnum\b/gi, 'número')
-    .replace(/\bmanifesto\b/gi, 'MDF-E')
-    .replace(/\bcupom fiscal\b/gi, 'NFC-e')
-    .replace(/\bdanfe\b/gi, 'danfe')
-    .replace(/\bNFC\b/gi, 'NFC-E')
-    .replace(/\bcupom\b/gi, 'NFC-E')
-    .replace(/\bcupom fiscal\b/gi, 'NFC-E')
-    .replace(/\bCTe\b/gi, 'CT-E')
-    .replace(/\bnota fiscal\b/gi, 'NF-E')
-    .replace(/\bnota fiscal do consumidor\b/gi, 'NFC-E')
-    .replace(/\bicms\b/gi, 'icms')
-    .replace(/\bCTÉ\b/gi, 'CT-E')
-    .replace(/\bAD\b/gi, 'AD')
-    .replace(/\banydesk\b/gi, 'AD')
-    .replace(/\bnidesk\b/gi, 'AD')
-    .replace(/\bunidesk\b/gi, 'AD')
-    .replace(/\bunidesc\b/gi, 'AD')
-    .replace(/\bndesk\b/gi, 'AD')
-    .replace(/\bN10\b/gi, 'AD')
-    .replace(/\bhd\b/gi, 'AD')
-    .replace(/\banidesc\b/gi, 'AD')
-    .replace(/\bpis\b/gi, 'pis')
-    .replace(/\bconfins\b/gi, 'cofins')
-    .replace(/\bnota\b/gi, 'NF-E')
-    .replace(/\bga\b/gi, 'GA')
-    .replace(/\bG A\b/gi, 'GA')
-    .replace(/\bgea\b/gi, 'GA')
-    .replace(/\bgear\b/gi, 'GA')
-    .replace(/\bjean\b/gi, 'GA')
-    .replace(/\bnota\b/gi, 'NF-E')
-    .replace(/\bAE\b/gi, 'AE')
-    .replace(/\s+/g, ' ')
-    .trim();
+// ─── MICROFONE ────────────────────────────────────
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  // Primeira letra maiúscula se o campo estiver vazio
-  if (campoVazio && texto.length > 0) {
-    texto = texto.charAt(0).toUpperCase() + texto.slice(1);
-  }
+const CORREÇÕES = [
+  // pontuação
+  [/\bvírgula\b/gi, ','],
+  [/\bponto e vírgula\b/gi, ';'],
+  [/\bponto\b/gi, '.'],
+  [/\bdois pontos\b/gi, ':'],
+  [/\binterrogação\b/gi, '?'],
+  [/\bexclamação\b/gi, '!'],
 
+  // documentos fiscais — do mais específico para o mais genérico
+  [/\bnota fiscal do consumidor\b/gi, 'NFC-e'],
+  [/\bnota fiscal\b/gi, 'NF-e'],
+  [/\bcupom fiscal\b/gi, 'NFC-e'],
+  [/\bcupom\b/gi, 'NFC-e'],
+  [/\bmanifesto\b/gi, 'MDF-e'],
+  [/\bCTe\b/gi, 'CT-e'],
+  [/\bCTÉ\b/gi, 'CT-e'],
+
+  // lookahead: só substitui se NÃO vier "-e" logo depois (evita "NF-e-e")
+  [/\bnota(?!-e)\b/gi, 'NF-e'],
+  [/\bnf(?!-e)\b/gi, 'NF-e'],
+  [/\bNFC(?!-e)\b/gi, 'NFC-e'],
+
+  // sistemas e abreviações
+  [/\banydesk\b/gi, 'AD'],
+  [/\bnidesk\b/gi, 'AD'],
+  [/\bunidesk\b/gi, 'AD'],
+  [/\bunidesc\b/gi, 'AD'],
+  [/\bndesk\b/gi, 'AD'],
+  [/\bN10\b/gi, 'AD'],
+  [/\banidesc\b/gi, 'AD'],
+  [/\bgea\b/gi, 'GA'],
+  [/\bgear\b/gi, 'GA'],
+  [/\bjean\b/gi, 'GA'],
+  [/\bG A\b/gi, 'GA'],
+
+  // outros
+  [/\bconfins\b/gi, 'cofins'],
+  [/\bcli\b/gi, 'cliente'],
+  [/\bobs\b/gi, 'observação'],
+  [/\bnum\b/gi, 'número'],
+];
+
+function formatarFala(texto, campoVazio) {
+  CORREÇÕES.forEach(([re, rep]) => { texto = texto.replace(re, rep); });
+  texto = texto.replace(/\s+/g, ' ').trim();
+  if (campoVazio && texto.length > 0) texto = texto.charAt(0).toUpperCase() + texto.slice(1);
   return texto;
 }
 
+function adicionarMic(campo) {
+  if (!SpeechRecognition || !campo) return;
 
-// ---- Microfone (Web Speech API) ----
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mic = document.createElement('button');
+  mic.type = 'button';
+  mic.className = 'mic-btn';
+  mic.title = 'Gravar voz';
+  mic.setAttribute('aria-label', 'Gravar voz');
+  mic.innerHTML = '<i class="bi bi-mic"></i>';
+  campo.closest('.textarea-wrap').appendChild(mic);
 
-if (SpeechRecognition) {
-  document.querySelectorAll('#problemCause, #resolution, #clientFeedback, #duvidaCliente, #duvidaExplicacao, #contatoRelato').forEach(campo => {
-    const micBtn = document.createElement('button');
-    micBtn.type = 'button';
-    micBtn.innerHTML = '<i class="bi bi-mic"></i>';
-    micBtn.className = 'btn btn-outline-secondary btn-sm mic-btn';
-    micBtn.style.position = 'absolute';
-    micBtn.style.right = '10px';
-    micBtn.style.top = '50%';
-    micBtn.style.transform = 'translateY(-50%)';
-    micBtn.style.borderRadius = '50%';
-    micBtn.style.width = '34px';
-    micBtn.style.height = '34px';
-    micBtn.style.display = 'flex';
-    micBtn.style.justifyContent = 'center';
-    micBtn.style.alignItems = 'center';
-    micBtn.style.padding = '0';
+  const rec = new SpeechRecognition();
+  rec.lang = 'pt-BR';
+  rec.interimResults = false;
+  rec.continuous = true;
 
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-    campo.parentNode.insertBefore(wrapper, campo);
-    wrapper.appendChild(campo);
-    wrapper.appendChild(micBtn);
+  let gravando = false;
+  let ultimo = '';
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    recognition.interimResults = false;
-    recognition.continuous = true;
-
-    let gravando = false;
-    let ultimoTexto = '';
-
-    micBtn.addEventListener('click', () => {
-      if (!gravando) {
-        recognition.start();
-        gravando = true;
-        micBtn.innerHTML = '<i class="bi bi-mic-fill text-danger"></i>';
-        micBtn.style.animation = 'pulse 1s infinite';
-      } else {
-        recognition.stop();
-        gravando = false;
-        micBtn.innerHTML = '<i class="bi bi-mic"></i>';
-        micBtn.style.animation = 'none';
-      }
-    });
-
-    // --- CORREÇÃO: Evita repetição de texto ---
-    recognition.onresult = (event) => {
-      const startIndex = event.resultIndex || 0;
-      let novoTrecho = '';
-
-      for (let i = startIndex; i < event.results.length; i++) {
-        novoTrecho += event.results[i][0].transcript;
-      }
-
-      novoTrecho = novoTrecho.trim();
-      if (!novoTrecho) return;
-
-      if (novoTrecho === ultimoTexto) return;
-
-      const campoVazio = campo.value.trim().length === 0;
-      novoTrecho = formatarTextoReconhecido(novoTrecho, campoVazio);
-
-      campo.value += (campo.value ? ' ' : '') + novoTrecho;
-      ultimoTexto = novoTrecho;
-      autoResize(campo);
-    };
-
-    recognition.onend = () => {
-      if (gravando) recognition.start();
-    };
+  mic.addEventListener('click', () => {
+    if (!gravando) {
+      rec.start();
+      gravando = true;
+      mic.classList.add('gravando');
+      mic.innerHTML = '<i class="bi bi-mic-fill"></i>';
+    } else {
+      rec.stop();
+      gravando = false;
+      mic.classList.remove('gravando');
+      mic.innerHTML = '<i class="bi bi-mic"></i>';
+    }
   });
-} else {
-  console.warn("Reconhecimento de voz não suportado neste navegador.");
+
+  rec.onresult = e => {
+    let trecho = '';
+    for (let i = e.resultIndex || 0; i < e.results.length; i++) {
+      trecho += e.results[i][0].transcript;
+    }
+    trecho = trecho.trim();
+    if (!trecho || trecho === ultimo) return;
+    const vazio = !campo.value.trim();
+    trecho = formatarFala(trecho, vazio);
+    campo.value += (campo.value ? ' ' : '') + trecho;
+    ultimo = trecho;
+    autoResize(campo);
+  };
+
+  rec.onend = () => { if (gravando) rec.start(); };
 }
 
+// ─── ERROS COMUNS (custom select) ─────────────────
 fetch('errosComuns.json')
-  .then(res => res.json())
+  .then(r => r.json())
   .then(erros => {
-    const customSelect = document.getElementById('customSelect');
-    const selected = customSelect.querySelector('.selected');
-    const optionsContainer = customSelect.querySelector('.options');
+    const cs = document.getElementById('customSelect');
+    const selected = cs.querySelector('.selected');
+    const optionsCont = cs.querySelector('.options');
+    const searchInput = cs.querySelector('#searchErros');
+    const optionsList = cs.querySelector('.options-list');
 
-    // Preenche as opções
-    erros.forEach((item, index) => {
-      const div = document.createElement('div');
-      div.textContent = item.erro;
-      div.dataset.index = index;
-      optionsContainer.appendChild(div);
+    let aberto = false;
 
-      div.addEventListener('click', () => {
-        selected.textContent = item.erro;
-        optionsContainer.classList.add('d-none');
-
-        // Preenche os campos automaticamente
-        document.getElementById('errorMessage').value = item.mensagem || '';
-        document.getElementById('problemCause').value = item.causa || '';
-        document.getElementById('resolution').value = item.resolucao || '';
-        document.getElementById('clientFeedback').value = item.feedback || '';
-        document.getElementById('humorSelection').value = item.humor || 'Bom';
-        document.querySelector(`input[name="upsell"][value="${item.upsell}"]`).checked = true;
-        document.querySelector(`input[name="captura"][value="${item.captura}"]`).checked = true;
-
-        // 🔽 Adiciona automaticamente os valores preenchidos no cache
-        ['errorMessage', 'problemCause', 'resolution', 'clientFeedback'].forEach(id => {
-          const campo = document.getElementById(id);
-          if (campo && campo.value.trim().length > 0) {
-            const key = `cache_${campo.id}`;
-            let values = JSON.parse(localStorage.getItem(key) || "[]");
-            if (!values.includes(campo.value.trim())) {
-              values.push(campo.value.trim());
-              if (values.length > 20) values = values.slice(-20); // limite
-              localStorage.setItem(key, JSON.stringify(values));
-            }
-          }
+    function renderOpcoes(filtro = '') {
+      optionsList.innerHTML = '';
+      const fl = filtro.toLowerCase();
+      erros
+        .filter(e => e.erro.toLowerCase().includes(fl))
+        .forEach((item, idx) => {
+          const d = document.createElement('div');
+          d.textContent = item.erro;
+          d.addEventListener('click', () => selecionar(item));
+          optionsList.appendChild(d);
         });
+    }
 
-        ['errorMessage','problemCause','resolution','clientFeedback'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) autoResize(el);
-        });
-      });
+    function abrir() {
+      optionsCont.classList.remove('d-none');
+      selected.classList.add('open');
+      selected.setAttribute('aria-expanded', 'true');
+      aberto = true;
+      searchInput.value = '';
+      renderOpcoes();
+      setTimeout(() => searchInput.focus(), 50);
+    }
+
+    function fechar() {
+      optionsCont.classList.add('d-none');
+      selected.classList.remove('open');
+      selected.setAttribute('aria-expanded', 'false');
+      aberto = false;
+    }
+
+    function selecionar(item) {
+      selected.textContent = item.erro;
+      selected.classList.remove('placeholder');
+      fechar();
+
+      // Preencher campos
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined) { el.value = val; autoResize(el); cachePush(id, val); }
+      };
+
+      set('errorMessage', item.mensagem);
+      set('problemCause', item.causa);
+      set('resolution', item.resolucao);
+      set('clientFeedback', item.feedback);
+
+      const humorEl = document.getElementById('humorSelection');
+      if (humorEl && item.humor) humorEl.value = item.humor;
+
+      const upsellEl = document.querySelector(`input[name="upsell"][value="${item.upsell}"]`);
+      if (upsellEl) { upsellEl.checked = true; toggleUpsell(); }
+
+      const capturaEl = document.querySelector(`input[name="captura"][value="${item.captura}"]`);
+      if (capturaEl) capturaEl.checked = true;
+
+      showToast('✓ Campos preenchidos automaticamente');
+    }
+
+    selected.addEventListener('click', () => aberto ? fechar() : abrir());
+    selected.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); aberto ? fechar() : abrir(); } });
+
+    searchInput.addEventListener('input', () => renderOpcoes(searchInput.value));
+
+    document.addEventListener('click', e => {
+      if (aberto && !cs.contains(e.target)) fechar();
     });
 
-    // Toggle dropdown
-    selected.addEventListener('click', () => {
-      optionsContainer.classList.toggle('d-none');
-    });
-
-    // Fechar dropdown se clicar fora
-    document.addEventListener('click', (e) => {
-      if (!customSelect.contains(e.target)) {
-        optionsContainer.classList.add('d-none');
-      }
-    });
+    renderOpcoes();
   })
-.catch(err => console.error('Erro ao carregar erros comuns:', err));
+  .catch(err => console.warn('Erro ao carregar errosComuns.json:', err));
 
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const campos = document.querySelectorAll("textarea:not(#textoIA), input[type='text']");
-
-
-  campos.forEach(campo => {
-    const key = `cache_${campo.id}`;
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "relative";
-    campo.parentNode.insertBefore(wrapper, campo);
-    wrapper.appendChild(campo);
-
-    const list = document.createElement("div");
-    list.style.position = "absolute";
-    list.style.top = "100%";
-    list.style.left = "0";
-    list.style.right = "0";
-    list.style.borderRadius = "6px";
-    list.style.zIndex = "1000";
-    list.style.display = "none";
-    list.style.maxHeight = "140px";
-    list.style.overflowY = "auto";
-    list.style.fontSize = "14px";
-    list.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
-    list.style.backdropFilter = "blur(4px)";
-    wrapper.appendChild(list);
-
-    // Detecta tema atual
-    function applyListTheme() {
-      const isDark = document.body.classList.contains("dark") || localStorage.getItem("theme") === "dark";
-      if (isDark) {
-        list.style.background = "#2c2c2c";
-        list.style.color = "#fff";
-        list.style.border = "1px solid #555";
-        list.style.boxShadow = "0 2px 8px rgba(0,0,0,0.6)";
-      } else {
-        list.style.background = "#f5f9ff";
-        list.style.color = "#0a0a0a";
-        list.style.border = "1px solid #ccd9ff";
-        list.style.boxShadow = "0 2px 6px rgba(0,0,0,0.08)";
-      }
-    }
-
-    applyListTheme();
-    const bodyObserverForList = new MutationObserver(() => applyListTheme());
-    bodyObserverForList.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-
-    // --- Lógica de sugestões ---
-    let currentIndex = -1; // índice da sugestão ativa
-
-    function mostrarSugestoes(filtro = "") {
-      const values = JSON.parse(localStorage.getItem(key) || "[]");
-      list.innerHTML = "";
-
-      const filtradas = values
-        .filter(v => v.toLowerCase().includes(filtro.toLowerCase()))
-        .slice(-20)
-        .reverse();
-
-      if (filtradas.length === 0) {
-        list.style.display = "none";
-        return;
-      }
-
-      filtradas.forEach((value, i) => {
-        const item = document.createElement("div");
-        item.textContent = value;
-        item.style.padding = "6px 10px";
-        item.style.cursor = "pointer";
-        item.style.transition = "background 0.2s";
-
-        item.addEventListener("mouseenter", () => {
-          item.style.background = localStorage.getItem("theme") === "dark" ? "#333" : "#e6efff";
-        });
-        item.addEventListener("mouseleave", () => {
-          if (i !== currentIndex) item.style.background = "transparent";
-        });
-
-        item.addEventListener("click", () => {
-          campo.value = value;
-          list.style.display = "none";
-        });
-
-        list.appendChild(item);
-      });
-
-      list.style.display = "block";
-      currentIndex = -1;
-    }
-
-    campo.addEventListener("focus", () => mostrarSugestoes(campo.value));
-
-    campo.addEventListener("input", () => {
-      mostrarSugestoes(campo.value);
-    });
-
-    // --- Navegação com setas e Enter ---
-    campo.addEventListener("keydown", e => {
-      const items = Array.from(list.children);
-      if (list.style.display === "none" || items.length === 0) return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        currentIndex = (currentIndex + 1) % items.length;
-        atualizarDestaque(items);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        currentIndex = (currentIndex - 1 + items.length) % items.length;
-        atualizarDestaque(items);
-      } else if (e.key === "Enter") {
-        if (currentIndex >= 0 && currentIndex < items.length) {
-          e.preventDefault();
-          campo.value = items[currentIndex].textContent;
-          list.style.display = "none";
-        }
-      }
-    });
-
-    function atualizarDestaque(items) {
-      items.forEach((item, i) => {
-        const isDark = document.body.classList.contains("dark") || localStorage.getItem("theme") === "dark";
-        if (i === currentIndex) {
-          item.style.background = isDark ? "#444" : "#cfe0ff";
-        } else {
-          item.style.background = "transparent";
-        }
-      });
-    }
-
-    document.addEventListener("click", e => {
-      if (!wrapper.contains(e.target)) list.style.display = "none";
-    });
-
-    campo.addEventListener("blur", () => {
-      const value = campo.value.trim();
-      if (value.length > 0) {
-        let values = JSON.parse(localStorage.getItem(key) || "[]");
-        if (!values.includes(value)) {
-          values.push(value);
-          if (values.length > 20) values = values.slice(-20);
-          localStorage.setItem(key, JSON.stringify(values));
-        }
-      }
-    });
-  });
-
-  // --- Toast ---
-  function showToast(msg) {
-    const toast = document.getElementById("toast");
-    toast.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2000);
-  }
-
-  // --- Botão limpar histórico ---
-  const limparBtn = document.getElementById("limparHistorico");
-  if (limparBtn) {
-    limparBtn.addEventListener("click", () => {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith("cache_")) localStorage.removeItem(key);
-      });
-      showToast("🧹 Cache apagado!");
-    });
-  }
-});
-const upsellRadios = document.querySelectorAll('input[name="upsell"]');
-const upsellDescContainer = document.getElementById('upsellDesc').parentElement;
+// ─── TOGGLE UPSELL ────────────────────────────────
+const upsellDescWrap = document.getElementById('upsellDescWrap');
 
 function toggleUpsell() {
-  const selected = document.querySelector('input[name="upsell"]:checked');
-  upsellDescContainer.style.display =
-    selected && selected.value === 'Sim' ? 'block' : 'none';
+  const val = document.querySelector('input[name="upsell"]:checked')?.value;
+  if (upsellDescWrap) upsellDescWrap.style.display = val === 'Sim' ? 'block' : 'none';
 }
 
-// Executa ao carregar a página
-document.addEventListener('DOMContentLoaded', toggleUpsell);
+document.querySelectorAll('input[name="upsell"]').forEach(r => r.addEventListener('change', toggleUpsell));
 
-// Executa ao trocar a opção
-upsellRadios.forEach(radio => {
-  radio.addEventListener('change', toggleUpsell);
+// ─── COPIAR TEXTO ─────────────────────────────────
+document.getElementById('copyBtn').addEventListener('click', () => {
+  // Extrai só o texto do botão ativo, ignorando o ícone <i>
+  const btnAtivo = document.querySelector('.tab-btn.ativo');
+  const ativo = btnAtivo
+    ? Array.from(btnAtivo.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent.trim())
+        .join('').trim()
+    : '';
+
+  let texto = '';
+
+  const val = id => (document.getElementById(id)?.value.trim() || '');
+
+  if (ativo === 'Problema') {
+    if (val('docNumber'))    texto += `NÚMERO DO DOCUMENTO: ${val('docNumber')}\n\n`;
+    if (val('errorMessage')) texto += `MENSAGEM DE ERRO: ${val('errorMessage')}\n\n`;
+    if (val('problemCause')) texto += `CAUSA DO PROBLEMA / DUVIDA: ${val('problemCause')}\n\n`;
+    if (val('resolution'))   texto += `RESOLUÇÃO: ${val('resolution')}\n\n`;
+  } else if (ativo === 'Dúvida') {
+    if (val('duvidaCliente'))    texto += `DÚVIDA DO CLIENTE: ${val('duvidaCliente')}\n\n`;
+    if (val('duvidaExplicacao')) texto += `EXPLICAÇÃO: ${val('duvidaExplicacao')}\n\n`;
+  } else {
+    if (val('contatoRelato')) texto += `RELATO DO CONTATO: ${val('contatoRelato')}\n\n`;
+  }
+
+  if (val('clientFeedback')) texto += `FEEDBACK DO CLIENTE: ${val('clientFeedback')}\n\n`;
+
+  const humor   = document.getElementById('humorSelection')?.value;
+  const upsell  = document.querySelector('input[name="upsell"]:checked')?.value;
+  const captura = document.querySelector('input[name="captura"]:checked')?.value;
+
+  if (humor)   texto += `HUMOR DO CLIENTE: ${humor}\n\n`;
+  if (upsell)  texto += `UPSELL: ${upsell}\n\n`;
+  if (upsell === 'Sim' && val('upsellDesc')) texto += `DESCRIÇÃO UPSELL: ${val('upsellDesc')}\n\n`;
+  if (captura) texto += `MENSAGENS OU PRINT DE ERROS: ${captura}`;
+
+  texto = texto.trimEnd();
+
+  navigator.clipboard.writeText(texto).then(() => {
+    // Notificação canto superior direito
+    const msg = document.getElementById('copyMessage');
+    if (msg) {
+      msg.style.opacity = '1';
+      msg.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        msg.style.opacity = '0';
+        msg.style.transform = 'translateY(-8px)';
+      }, 1800);
+    }
+
+    // Limpar todos os campos após copiar
+    document.querySelectorAll('.field-input, .field-textarea').forEach(el => {
+      el.value = '';
+      autoResize(el);
+      localStorage.removeItem('cp_session_' + el.id);
+    });
+    document.getElementById('humorSelection').value = 'Bom';
+    document.getElementById('upsellNo').checked = true;
+    document.getElementById('capturaNo').checked = true;
+    toggleUpsell();
+
+    // Resetar custom select
+    const sel = document.querySelector('#customSelect .selected');
+    if (sel) { sel.textContent = 'Selecione um erro para autopreenchimento...'; sel.classList.add('placeholder'); }
+
+  }).catch(() => {
+    showToast('Erro ao copiar. Tente novamente.', 'erro');
+  });
 });
+
+// ─── LIMPAR CAMPOS ────────────────────────────────
+document.getElementById('limparCampos').addEventListener('click', () => {
+  document.querySelectorAll('.field-input, .field-textarea').forEach(el => { el.value = ''; autoResize(el); });
+  document.getElementById('humorSelection').value = 'Bom';
+  document.getElementById('upsellNo').checked = true;
+  document.getElementById('capturaNo').checked = true;
+  toggleUpsell();
+
+  // resetar custom select
+  const sel = document.querySelector('#customSelect .selected');
+  if (sel) { sel.textContent = 'Selecione um erro para autopreenchimento...'; sel.classList.add('placeholder'); }
+
+  showToast('🧹 Campos limpos');
+});
+
+// ─── LIMPAR CACHE ─────────────────────────────────
+document.getElementById('limparHistorico').addEventListener('click', () => {
+  cacheAll().forEach(k => localStorage.removeItem(k));
+  showToast('🗑️ Cache apagado com sucesso');
+});
+
+// ─── BOTÃO IA ─────────────────────────────────────
 let emProcessoIA = false;
+const btnIA = document.getElementById('btnIA');
+const iaModal = new bootstrap.Modal(document.getElementById('iaModal'));
 
-document.getElementById('btnIA').addEventListener('click', async (e) => {
+const camposIA = ['problemCause', 'resolution', 'duvidaCliente', 'duvidaExplicacao', 'contatoRelato'];
 
+btnIA.addEventListener('click', async () => {
   if (emProcessoIA) return;
 
-  const btn = e.currentTarget;
+  const alvo = camposIA
+    .map(id => document.getElementById(id))
+    .filter(el => el && el.value.trim() && !el.closest('.tela') || (el && el.value.trim() && el.closest('.tela.active')));
 
-  const campos = [
-    document.getElementById('problemCause'),
-    document.getElementById('resolution')
-  ];
+  // pega só os campos da tela ativa + clientFeedback
+  const telaAtiva = document.querySelector('.tela.active');
+  const paraProcessar = [
+    ...Array.from(telaAtiva?.querySelectorAll('.field-textarea') || []),
+    document.getElementById('clientFeedback')
+  ].filter(el => el && el.value.trim());
 
-  const textos = campos
-    .filter(c => c && c.value.trim())
-    .map(c => c.value.trim());
-
-  if (textos.length === 0) {
-    alert('Preencha pelo menos um campo para melhorar.');
+  if (!paraProcessar.length) {
+    showToast('Preencha pelo menos um campo para usar a IA.', 'aviso');
     return;
   }
 
   emProcessoIA = true;
-
-  // UI de loading no botão
-  const textoOriginalBtn = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '⏳ Melhorando...';
+  btnIA.disabled = true;
+  iaModal.show();
 
   try {
-
-    for (const campo of campos) {
-
-      if (!campo || !campo.value.trim()) continue;
-
+    for (const campo of paraProcessar) {
       const original = campo.value.trim();
-
-      campo.disabled = true;
-
       try {
-
-        const resposta = await fetch('/api/ia', {
+        const res = await fetch('/api/ia', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            texto: original,
-            tipo: 'melhorar'
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto: original, tipo: 'melhorar' })
         });
-
-        if (!resposta.ok) {
-          throw new Error('Erro na API');
+        if (!res.ok) throw new Error('Erro HTTP ' + res.status);
+        const data = await res.json();
+        if (data.resultado) {
+          campo.value = data.resultado;
+          autoResize(campo);
+          cachePush(campo.id, data.resultado);
         }
-
-        const data = await resposta.json();
-
-        campo.value = data.resultado || original;
-
       } catch (err) {
-        console.error(err);
+        console.warn('Erro na IA para campo', campo.id, err);
       }
-
-      campo.disabled = false;
     }
-
+    showToast('✨ Texto melhorado com IA!');
   } finally {
-
-    // libera tudo no final
-    btn.disabled = false;
-    btn.innerHTML = textoOriginalBtn;
+    iaModal.hide();
+    btnIA.disabled = false;
     emProcessoIA = false;
-
   }
+});
 
+// ─── INICIALIZAÇÃO ────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  toggleUpsell();
+
+  // Auto-resize + cache + mic em todos os textareas
+  document.querySelectorAll('.field-textarea').forEach(el => {
+    autoResize(el);
+    criarAutocomplete(el);
+    adicionarMic(el);
+  });
+
+  // Cache em inputs de texto
+  document.querySelectorAll('.field-input').forEach(el => {
+    criarAutocomplete(el);
+  });
+
+  // Restaurar valores do cache na última sessão
+  const CAMPOS_PERSISTIR = ['docNumber', 'errorMessage', 'problemCause', 'resolution',
+    'clientFeedback', 'duvidaCliente', 'duvidaExplicacao', 'contatoRelato', 'upsellDesc'];
+
+  CAMPOS_PERSISTIR.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const saved = localStorage.getItem('cp_session_' + id);
+    if (saved) { el.value = saved; autoResize(el); }
+
+    el.addEventListener('input', () => {
+      localStorage.setItem('cp_session_' + id, el.value);
+    });
+  });
 });

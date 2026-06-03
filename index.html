@@ -1,213 +1,262 @@
 <!doctype html>
-<html lang="pt-BR" spellcheck="true">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Called Press</title>
   <link rel="icon" type="image/png" href="/logocp.png">
-
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;700&display=swap" rel="stylesheet">
-
-  <!-- CSS próprio -->
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body spellcheck="true">
-  <div class="container">
+<body>
+  <div class="container py-3">
     <div class="form-container">
-      <div class="d-flex justify-content-between align-items-center mb-3">
+
+      <!-- HEADER -->
+      <div class="app-header">
         <div class="d-flex align-items-center gap-2">
-          <button id="darkSwitch" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-moon" id="iconMoon"></i>
-            <i class="bi bi-brightness-high d-none" id="iconSun"></i>
+          <button id="darkSwitch" class="btn-icon" title="Alternar tema" aria-label="Alternar tema claro/escuro">
+            <i class="bi bi-moon-fill" id="iconMoon"></i>
+            <i class="bi bi-brightness-high-fill d-none" id="iconSun"></i>
           </button>
-          <h3 class="mb-0">Called Press</h3>
+          <h1 class="app-title mb-0">Called Press</h1>
         </div>
 
         <div class="tipo-chamado">
-          <span class="fw-bold me-2">Tipo de Chamado:</span>
-          <button id="btn-problema" class="btn btn-outline-primary ativo" onclick="mostrarTela('problema')">Problema</button>
-          <button id="btn-duvida" class="btn btn-outline-primary" onclick="mostrarTela('duvida')">Dúvida</button>
-          <button id="btn-contato" class="btn btn-outline-primary" onclick="mostrarTela('contato')">Contato Ativo</button>
+          <button id="btn-problema" class="tab-btn ativo" onclick="mostrarTela('problema')">
+            <i class="bi bi-bug"></i> Problema
+          </button>
+          <button id="btn-duvida" class="tab-btn" onclick="mostrarTela('duvida')">
+            <i class="bi bi-question-circle"></i> Dúvida
+          </button>
+          <button id="btn-contato" class="tab-btn" onclick="mostrarTela('contato')">
+            <i class="bi bi-telephone"></i> Contato Ativo
+          </button>
         </div>
       </div>
 
-      <!-- TELAS -->
+      <!-- TELA PROBLEMA -->
       <div id="tela-problema" class="tela active">
         <div class="row g-3">
 
-          <div class="col-12 mb-2">
-            <label class="form-label fw-semibold text-info d-block mb-1 margin-erro-comum">
-              ⚙️ Erros comuns (autopreenchimento) <b class="conferir">! ajustar com demanda do seu chamado !</b>
+          <div class="col-12">
+            <label class="field-label">
+              <i class="bi bi-lightning-charge-fill text-warning"></i>
+              Erros comuns
+              <span class="badge-aviso">ajuste conforme seu chamado</span>
             </label>
-
             <div id="customSelect" class="custom-select">
-              <div class="selected">Selecione um erro</div>
-              <div class="options d-none"></div>
+              <div class="selected placeholder" tabindex="0" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+                Selecione um erro para autopreenchimento...
+              </div>
+              <div class="options d-none" role="listbox">
+                <input type="text" class="search-input" placeholder="Buscar erro..." id="searchErros" autocomplete="off">
+                <div class="options-list"></div>
+              </div>
             </div>
           </div>
 
           <div class="col-md-3">
-            <label class="form-label">Nº do documento</label>
-            <input spellcheck="true" type="text" id="docNumber" class="form-control" placeholder="ex: 31, 34, 35">
+            <label class="field-label" for="docNumber">Nº do documento</label>
+            <input type="text" id="docNumber" class="field-input" placeholder="ex: 31, 34, 35" autocomplete="off">
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Mensagem de erro</label>
-            <input spellcheck="true" type="text" id="errorMessage" class="form-control" placeholder="Rejeição 204: Duplicidade de NF-e">
-          </div>
-
-          <div class="col-12">
-            <label class="form-label">Causa do Problema / Duvida</label>
-            <textarea spellcheck="true" id="problemCause" rows="2" class="form-control" placeholder="Descreva o que ocasionou o erro ou situação ou a duvida"></textarea>
+          <div class="col-md-9">
+            <label class="field-label" for="errorMessage">Mensagem de erro</label>
+            <input type="text" id="errorMessage" class="field-input" placeholder="Rejeição 204: Duplicidade de NF-e" autocomplete="off">
           </div>
 
           <div class="col-12">
-            <label class="form-label">Resolução</label>
-            <textarea spellcheck="true" id="resolution" rows="2" class="form-control" placeholder="Descreva a resolução do problema"></textarea>
+            <label class="field-label" for="problemCause">Causa do Problema / Dúvida</label>
+            <div class="textarea-wrap">
+              <textarea id="problemCause" rows="2" class="field-textarea" placeholder="Descreva o que ocasionou o erro ou situação"></textarea>
+            </div>
           </div>
+
+          <div class="col-12">
+            <label class="field-label" for="resolution">Resolução</label>
+            <div class="textarea-wrap">
+              <textarea id="resolution" rows="2" class="field-textarea" placeholder="Descreva a resolução do problema"></textarea>
+            </div>
+          </div>
+
         </div>
       </div>
 
+      <!-- TELA DÚVIDA -->
       <div id="tela-duvida" class="tela">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label">Dúvida do cliente</label>
-            <textarea spellcheck="true" id="duvidaCliente" rows="2" class="form-control" placeholder="Descreva a dúvida do cliente"></textarea>
+            <label class="field-label" for="duvidaCliente">Dúvida do cliente</label>
+            <div class="textarea-wrap">
+              <textarea id="duvidaCliente" rows="2" class="field-textarea" placeholder="Descreva a dúvida do cliente"></textarea>
+            </div>
           </div>
-
           <div class="col-12">
-            <label class="form-label">Explicação</label>
-            <textarea spellcheck="true" id="duvidaExplicacao" rows="2" class="form-control" placeholder="Descreva sua explicação para o cliente"></textarea>
+            <label class="field-label" for="duvidaExplicacao">Explicação</label>
+            <div class="textarea-wrap">
+              <textarea id="duvidaExplicacao" rows="2" class="field-textarea" placeholder="Descreva sua explicação para o cliente"></textarea>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- TELA CONTATO ATIVO -->
       <div id="tela-contato" class="tela">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label">Relato do Contato</label>
-            <textarea spellcheck="true" id="contatoRelato" rows="2" class="form-control" placeholder="Descreva o relato do contato com o cliente"></textarea>
+            <label class="field-label" for="contatoRelato">Relato do Contato</label>
+            <div class="textarea-wrap">
+              <textarea id="contatoRelato" rows="2" class="field-textarea" placeholder="Descreva o relato do contato com o cliente"></textarea>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- DIVISOR -->
+      <hr class="section-divider">
+
       <!-- CAMPOS COMUNS -->
-      <div class="row g-3 mt-2 align-items-center">
+      <div class="row g-3 align-items-start">
 
         <div class="col-12">
-          <label class="form-label">Feedback do Cliente</label>
-          <textarea spellcheck="true" id="clientFeedback" rows="2" class="form-control" placeholder="Satisfação do cliente | Compreendeu ou não a solução, Nome e número do(s) envolvidos"></textarea>
+          <label class="field-label" for="clientFeedback">Feedback do Cliente</label>
+          <div class="textarea-wrap">
+            <textarea id="clientFeedback" rows="2" class="field-textarea" placeholder="Satisfação do cliente | Compreendeu ou não a solução, Nome e número dos envolvidos"></textarea>
+          </div>
         </div>
 
         <div class="col-md-3">
-          <label class="form-label">Humor do Cliente</label>
-          <select id="humorSelection" class="form-select">
-            <option>Bom</option>
-            <option>Regular</option>
-            <option>Ruim</option>
+          <label class="field-label" for="humorSelection">Humor do Cliente</label>
+          <select id="humorSelection" class="field-select">
+            <option value="Bom">😊 Bom</option>
+            <option value="Regular">😐 Regular</option>
+            <option value="Ruim">😠 Ruim</option>
           </select>
         </div>
 
-        <div class="col-md-3">
-          <label class="form-label d-block">Upsell</label>
-          <div class="form-check form-check-inline">
-            <input type="radio" class="form-check-input" name="upsell" id="upsellYes" value="Sim">
-            <label class="form-check-label" for="upsellYes">Sim</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input type="radio" class="form-check-input" name="upsell" id="upsellNo" value="Não" checked>
-            <label class="form-check-label" for="upsellNo">Não</label>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label d-block">Mensagens ou prints de erros</label>
-          <div class="form-check form-check-inline">
-            <input type="radio" class="form-check-input" name="captura" id="capturaYes" value="Sim">
-            <label class="form-check-label" for="capturaYes">Sim</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input type="radio" class="form-check-input" name="captura" id="capturaNo" value="Não" checked>
-            <label class="form-check-label" for="capturaNo">Não</label>
+        <div class="col-md-4">
+          <label class="field-label d-block">Upsell</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="upsell" id="upsellYes" value="Sim">
+              <span>Sim</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="upsell" id="upsellNo" value="Não" checked>
+              <span>Não</span>
+            </label>
           </div>
         </div>
 
-        <div class="col-12 mt-2">
-          <label class="form-label">Descrição do Upsell</label>
-          <textarea id="upsellDesc" rows="2" class="form-control" placeholder="Descreva o upsell (módulo vendido, negociação, etc)"></textarea>
+        <div class="col-md-5">
+          <label class="field-label d-block">Mensagens ou prints de erros</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="captura" id="capturaYes" value="Sim">
+              <span>Sim</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="captura" id="capturaNo" value="Não" checked>
+              <span>Não</span>
+            </label>
+          </div>
         </div>
+
+        <div class="col-12" id="upsellDescWrap" style="display:none">
+          <label class="field-label" for="upsellDesc">Descrição do Upsell</label>
+          <div class="textarea-wrap">
+            <textarea id="upsellDesc" rows="2" class="field-textarea" placeholder="Módulo vendido, negociação, etc."></textarea>
+          </div>
+        </div>
+
       </div>
 
-      <!-- BOTÕES -->
-      <div class="d-flex justify-content-between mt-4">
-        <div class="footer-buttons">
-          <button id="novasAtualizacoes" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#creditosModal"><i class="bi bi-info"></i> Novas Atualizações</button>
-          <button id="limparHistorico" class="btn-limpar">🧹 Limpar Cache</button>
-          <div id="toast" class="toast-msg"></div>
-          <button id="btnIA" class="btn btn-success me-2">
-          ✨ Melhorar Texto IA
+      <!-- RODAPÉ / BOTÕES -->
+      <div class="app-footer">
+        <div class="footer-left">
+          <button id="btnIA" class="btn-ia">
+            <i class="bi bi-stars"></i> Melhorar com IA
+          </button>
+          <button id="limparCampos" class="btn-secondary-action">
+            <i class="bi bi-arrow-counterclockwise"></i> Limpar campos
+          </button>
+          <button id="limparHistorico" class="btn-secondary-action">
+            <i class="bi bi-trash3"></i> Limpar cache
+          </button>
+          <button id="novasAtualizacoes" class="btn-secondary-action" data-bs-toggle="modal" data-bs-target="#creditosModal">
+            <i class="bi bi-info-circle"></i> Atualizações
           </button>
         </div>
-        
-        <button id="copyBtn" class="btn btn-primary">Copiar textos <i class="bi bi-copy"></i></button>
+        <button id="copyBtn" class="btn-copy">
+          <i class="bi bi-clipboard-check"></i> Copiar texto
+        </button>
       </div>
+
     </div>
   </div>
 
-  <!-- MODAL: Créditos -->
-  <div class="modal fade" id="creditosModal">
+  <!-- TOAST -->
+  <div id="toast" class="toast-notification" role="alert" aria-live="polite"></div>
+
+  <!-- MODAL: Atualizações -->
+  <div class="modal fade" id="creditosModal" tabindex="-1">
     <div class="modal-dialog">
-      <div class="modal-content">
-
+      <div class="modal-content app-modal">
         <div class="modal-header">
-          <h5>Atualizações do Site</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
+          <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>Histórico de Atualizações</h5>
+          <button class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
-
         <div class="modal-body">
-          <ul>Atualização dia 11/11/2025</ul>
-          <li>Adicionado cache aos campos</li>
-          <li>Adicionado botão limpar cache</li>
-          <br>
-          <ul>Atualização dia 19/02/2026</ul>
-          <li>Upsell campo texto upsell aparece somente em "sim"</li>
-          <li>erros comuns novos: ibs cbs</li>
+          <div class="update-entry">
+            <span class="update-date">19/02/2026</span>
+            <ul>
+              <li>Campo de descrição do upsell aparece somente quando "Sim" selecionado</li>
+              <li>Erros comuns novos: IBS e CBS</li>
+            </ul>
+          </div>
+          <div class="update-entry">
+            <span class="update-date">11/11/2025</span>
+            <ul>
+              <li>Cache adicionado aos campos</li>
+              <li>Botão limpar cache adicionado</li>
+            </ul>
+          </div>
+          <div class="update-entry">
+            <span class="update-date">03/06/2026</span>
+            <ul>
+              <li>Novo layout moderno</li>
+              <li>Botão novo: Limpar campos</li>
+              <li>botão: Melhorar texto com IA </li>
+              <li>Erros comuns melhorado</li>
+              <li>Erros comuns agora você pode pesquisar o erro</li>
+            </ul>
+          </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Diretriz (CORRIGIDO) -->
-  <div class="modal fade" id="diretriz">
-    <div class="modal-dialog">
-      <div class="modal-content">
-
-        <div class="modal-header">
-          <h5>Créditos</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
+  <!-- MODAL: IA em processamento -->
+  <div class="modal fade" id="iaModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content app-modal text-center p-4">
+        <div class="ia-spinner mb-3">
+          <i class="bi bi-stars"></i>
         </div>
-
-        <div class="modal-body">
-          <p>Insira aqui seu conteúdo.</p>
-        </div>
-
+        <p class="mb-0 fw-semibold">Melhorando texto...</p>
+        <p class="text-muted small mb-0">A IA está reescrevendo seus campos</p>
       </div>
     </div>
   </div>
 
-  <!-- Mensagem Copiado -->
-  <div id="copyMessage">Texto copiado!</div>
+  <!-- Notificação copiado (canto superior direito) -->
+  <div id="copyMessage">✅ Texto copiado!</div>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- JS próprio -->
-  <script src="main.js?v=22092026"></script>
-
+  <script src="main.js?v=03062026"></script>
 </body>
 </html>
