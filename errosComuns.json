@@ -1,15 +1,5 @@
 [
   {
-    "erro": "Rejeição 204: Duplicidade de NF-e",
-    "mensagem": "Rejeição 204: Duplicidade de NF-e",
-    "causa": "Ocorre quando uma NF-e está autorizada na SEFAZ porém não retornou ao sistema como autorizada, ou já existe uma nota autorizada com a mesma série e numeração.",
-    "resolucao": "Excluí a nota com erro e importei o XML da nota autorizada na SEFAZ. Em caso de conflito de série e numeração, orientei o cliente a alterar a série ou numeração e importar a nota já autorizada.",
-    "feedback": "Cliente compreendeu a situação e agradeceu.",
-    "humor": "Bom",
-    "upsell": "Não",
-    "captura": "Não"
-  },
-  {
     "erro": "Rejeição: IE inválido (IE Genérico)",
     "mensagem": "Rejeição: IE inválido",
     "causa": "O problema ocorre por ausência da Inscrição Estadual no cadastro do cliente ou por configuração incorreta do status de contribuinte.",
@@ -20,20 +10,10 @@
     "captura": "Não"
   },
   {
-    "erro": "Dúvida: NF-e de devolução",
-    "mensagem": "Auxílio no preenchimento de NF-e de devolução",
-    "causa": "Cliente com dúvida sobre como preencher corretamente uma nota fiscal de devolução no sistema.",
-    "resolucao": "Acompanhei o preenchimento junto com o cliente até a nota ser enviada ao governo e ficar autorizada.",
-    "feedback": "Cliente orientado sobre o processo e agradeceu.",
-    "humor": "Bom",
-    "upsell": "Não",
-    "captura": "Não"
-  },
-  {
     "erro": "Rejeição: NCM inválido ou ausente",
     "mensagem": "Rejeição: NCM inválido ou ausente",
     "causa": "Código NCM incorreto ou ausente no cadastro do produto.",
-    "resolucao": "Cliente atualizou o NCM no cadastro do produto e orientei o cliente a reemitir a nota.",
+    "resolucao": "Atualizei o NCM no cadastro do produto conforme a tabela oficial da Receita Federal e orientei o cliente a reemitir a nota.",
     "feedback": "Cliente entendeu o problema e agradeceu.",
     "humor": "Bom",
     "upsell": "Não",
@@ -45,6 +25,16 @@
     "causa": "Erro de preenchimento em algum campo do sistema, como IE, endereço, cadastro do cliente ou configuração de impostos.",
     "resolucao": "Verifiquei os campos com preenchimento incorreto e realizei os ajustes necessários.",
     "feedback": "Expliquei ao cliente onde estava o erro no preenchimento, ele(a) agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Dúvida: NF-e de devolução",
+    "mensagem": "Auxílio no preenchimento de NF-e de devolução",
+    "causa": "Cliente com dúvida sobre como preencher corretamente uma nota fiscal de devolução no sistema.",
+    "resolucao": "Acompanhei o preenchimento junto com o cliente até a nota ser enviada ao governo e ficar autorizada.",
+    "feedback": "Cliente orientado sobre o processo e agradeceu.",
     "humor": "Bom",
     "upsell": "Não",
     "captura": "Não"
@@ -68,5 +58,695 @@
     "humor": "Bom",
     "upsell": "Não",
     "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 106: Lote não localizado",
+    "mensagem": "Rejeição 106: Lote não localizado",
+    "causa": "O número do lote enviado à SEFAZ não foi encontrado na base de dados.",
+    "resolucao": "Verifiquei o status da NF-e diretamente na SEFAZ pelo número da chave de acesso. Se autorizada, importei o XML. Se não, reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 108: Serviço paralisado momentaneamente",
+    "mensagem": "Rejeição 108: Serviço paralisado momentaneamente",
+    "causa": "O serviço da SEFAZ está temporariamente indisponível.",
+    "resolucao": "Orientei o cliente a aguardar alguns minutos e tentar reenviar a nota. Se persistir, verificar o status do serviço da SEFAZ no portal nacional.",
+    "feedback": "Cliente compreendeu e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 110: Uso denegado",
+    "mensagem": "Rejeição 110: Uso denegado",
+    "causa": "O emitente está com irregularidade fiscal na SEFAZ, impedindo a emissão de NF-e.",
+    "resolucao": "Orientei o cliente a regularizar a situação fiscal junto à SEFAZ do seu estado antes de tentar reemitir.",
+    "feedback": "Cliente orientado sobre o procedimento.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 114: SVC desabilitada pelo SEFAZ origem",
+    "mensagem": "Rejeição 114: SVC desabilitada pelo SEFAZ origem",
+    "causa": "O contingenciamento via SVC (SEFAZ Virtual de Contingência) foi desabilitado pela SEFAZ de origem.",
+    "resolucao": "Orientei o cliente a aguardar a normalização do serviço da SEFAZ de origem e reenviar a nota fora do modo contingência.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 202: Falha na autoria ou integridade do arquivo",
+    "mensagem": "Rejeição 202: Falha no reconhecimento da autoria ou integridade do arquivo digital",
+    "causa": "O certificado digital utilizado para assinar a NF-e está com problema, expirado ou não corresponde ao CNPJ do emitente.",
+    "resolucao": "Verifiquei o certificado digital vinculado ao sistema. Orientei o cliente a renovar ou vincular o certificado correto e reenviar a nota.",
+    "feedback": "Cliente orientado sobre o certificado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 203: Emissor não habilitado para emissão de NF-e",
+    "mensagem": "Rejeição 203: Emissor não habilitado para emissão de NF-e",
+    "causa": "O CNPJ do emitente não está habilitado na SEFAZ para emissão de NF-e.",
+    "resolucao": "Orientei o cliente a realizar o credenciamento para emissão de NF-e junto à SEFAZ do seu estado.",
+    "feedback": "Cliente orientado sobre o credenciamento.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 204: Duplicidade de NF-e",
+    "mensagem": "Rejeição 204: Duplicidade de NF-e",
+    "causa": "Já existe uma NF-e autorizada na SEFAZ com a mesma série e numeração, ou a nota foi autorizada mas não retornou o status ao sistema.",
+    "resolucao": "Excluí a nota com erro e importei o XML da nota autorizada na SEFAZ. Em caso de conflito de série e numeração, orientei o cliente a alterar a série ou numeração.",
+    "feedback": "Cliente compreendeu a situação e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 205: NF-e denegada na base da SEFAZ",
+    "mensagem": "Rejeição 205: NF-e está denegada na base de dados da SEFAZ",
+    "causa": "A NF-e foi denegada pela SEFAZ por irregularidade fiscal do emitente ou destinatário.",
+    "resolucao": "Orientei o cliente que a nota denegada não tem validade fiscal. É necessário regularizar a situação fiscal e emitir uma nova NF-e com outro número.",
+    "feedback": "Cliente orientado sobre o procedimento.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 206: NF-e já inutilizada na SEFAZ",
+    "mensagem": "Rejeição 206: NF-e já está inutilizada na base de dados da SEFAZ",
+    "causa": "O número da NF-e foi inutilizado anteriormente na SEFAZ e não pode ser reutilizado.",
+    "resolucao": "Orientei o cliente a utilizar o próximo número de sequência disponível para emitir a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 207: CNPJ do emitente inválido",
+    "mensagem": "Rejeição 207: CNPJ do emitente inválido",
+    "causa": "O CNPJ informado no cadastro do emitente está incorreto ou com dígito verificador inválido.",
+    "resolucao": "Verifiquei o CNPJ no cadastro da empresa no sistema e corrigi o número. Reenviei a nota após a correção.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 208: CNPJ do destinatário inválido",
+    "mensagem": "Rejeição 208: CNPJ do destinatário inválido",
+    "causa": "O CNPJ informado no cadastro do destinatário está incorreto ou com dígito verificador inválido.",
+    "resolucao": "Verifiquei e corrigi o CNPJ no cadastro do cliente destinatário. Reenviei a nota após a correção.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 209: IE do emitente inválida",
+    "mensagem": "Rejeição 209: IE do emitente inválida",
+    "causa": "A Inscrição Estadual do emitente está incorreta ou não corresponde ao padrão do estado.",
+    "resolucao": "Verifiquei e corrigi a IE no cadastro da empresa emitente. Se o emitente for não contribuinte, ajustei o campo corretamente.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 210: IE do destinatário inválida",
+    "mensagem": "Rejeição 210: IE do destinatário inválida",
+    "causa": "A Inscrição Estadual do destinatário está incorreta, ausente ou o cliente foi marcado incorretamente como contribuinte.",
+    "resolucao": "Verifiquei a IE no cadastro do destinatário. Corrigi o valor ou ajustei o status para não contribuinte conforme o caso.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 212: Data de emissão posterior ao recebimento",
+    "mensagem": "Rejeição 212: Data de emissão NF-e posterior a data de recebimento",
+    "causa": "A data de emissão da NF-e está configurada para uma data futura em relação à data de recebimento pelo servidor da SEFAZ.",
+    "resolucao": "Verifiquei a data e hora do sistema do cliente. Corrigi a data de emissão e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 213: CNPJ-Base do Autor difere do Certificado",
+    "mensagem": "Rejeição 213: CNPJ-Base do Autor difere do CNPJ-Base do Certificado Digital",
+    "causa": "O certificado digital utilizado pertence a um CNPJ diferente do emitente da nota.",
+    "resolucao": "Verifiquei o certificado vinculado ao sistema e orientei o cliente a utilizar o certificado correto correspondente ao CNPJ emitente.",
+    "feedback": "Cliente orientado sobre o certificado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 217: NF-e não consta na base da SEFAZ",
+    "mensagem": "Rejeição 217: NF-e não consta na base de dados da SEFAZ",
+    "causa": "A NF-e consultada não foi localizada na base da SEFAZ, possivelmente por nunca ter sido transmitida ou por consulta com chave incorreta.",
+    "resolucao": "Verifiquei a chave de acesso da NF-e e tentei nova consulta. Orientei o cliente a reenviar a nota se necessário.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 218: NF-e já cancelada na SEFAZ",
+    "mensagem": "NF-e já está cancelada na base de dados da SEFAZ",
+    "causa": "A nota fiscal já foi cancelada anteriormente na SEFAZ.",
+    "resolucao": "Orientei o cliente que a nota está cancelada e não pode ser reativada. Uma nova NF-e deve ser emitida com outro número.",
+    "feedback": "Cliente orientado sobre o procedimento.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 220: Prazo de cancelamento ultrapassado",
+    "mensagem": "Rejeição 220: Prazo de Cancelamento superior ao previsto na Legislação",
+    "causa": "O prazo para cancelamento da NF-e foi ultrapassado. Em geral o prazo é de 24 horas após a autorização.",
+    "resolucao": "Orientei o cliente que não é mais possível cancelar. A forma correta é emitir uma NF-e de devolução ou carta de correção conforme o caso.",
+    "feedback": "Cliente orientado sobre as alternativas.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 225: Falha no Schema XML",
+    "mensagem": "Rejeição 225: Falha no Schema XML do lote de NF-e",
+    "causa": "O arquivo XML da NF-e está com estrutura incorreta, geralmente causado por campos obrigatórios não preenchidos ou com formato inválido.",
+    "resolucao": "Verifiquei os campos com preenchimento incorreto no sistema (IE, endereço, impostos, cadastro do cliente) e realizei os ajustes necessários.",
+    "feedback": "Expliquei ao cliente onde estava o erro, ele(a) agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 228: Data de emissão muito atrasada",
+    "mensagem": "Rejeição 228: Data de Emissão muito atrasada",
+    "causa": "A data de emissão da NF-e está muito anterior à data atual, fora do prazo aceito pela SEFAZ.",
+    "resolucao": "Corrigi a data de emissão para a data atual e reenviei a nota. Verifiquei também a data e hora do sistema do cliente.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 229: IE do emitente não informada",
+    "mensagem": "Rejeição 229: IE do emitente não informada",
+    "causa": "O campo de Inscrição Estadual do emitente está vazio no cadastro da empresa.",
+    "resolucao": "Incluí a IE no cadastro da empresa emitente. Se for não contribuinte, ajustei o indicador de IE corretamente.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 230: IE do emitente não cadastrada",
+    "mensagem": "Rejeição 230: IE do emitente não cadastrada",
+    "causa": "A Inscrição Estadual informada não consta como cadastrada na SEFAZ do estado do emitente.",
+    "resolucao": "Orientei o cliente a verificar a IE junto à SEFAZ estadual. Enquanto isso, ajustei o cadastro com a IE correta.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 231: IE do emitente não vinculada ao CNPJ",
+    "mensagem": "Rejeição 231: IE do emitente não vinculada ao CNPJ",
+    "causa": "A Inscrição Estadual informada existe na SEFAZ, porém está vinculada a outro CNPJ.",
+    "resolucao": "Orientei o cliente a verificar a IE correta junto à SEFAZ estadual e atualizar o cadastro no sistema.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 232: IE do destinatário não informada",
+    "mensagem": "Rejeição 232: IE do destinatário não informada",
+    "causa": "O campo de IE do destinatário está vazio e a operação exige seu preenchimento.",
+    "resolucao": "Incluí a IE no cadastro do destinatário ou ajustei o indicador para não contribuinte conforme o caso.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 236: Chave de acesso com dígito verificador inválido",
+    "mensagem": "Rejeição 236: Chave de Acesso com dígito verificador inválido",
+    "causa": "A chave de acesso da NF-e foi gerada com erro no dígito verificador.",
+    "resolucao": "Excluí a nota com erro no sistema e lancei novamente para gerar uma nova chave de acesso correta.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 237: CPF do destinatário inválido",
+    "mensagem": "Rejeição 237: CPF do destinatário inválido",
+    "causa": "O CPF informado no cadastro do destinatário está incorreto ou com dígito verificador inválido.",
+    "resolucao": "Verifiquei e corrigi o CPF no cadastro do destinatário. Reenviei a nota após a correção.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 238/239: Versão do XML não suportada",
+    "mensagem": "Rejeição 238/239: Versão do arquivo XML não suportada ou superior à vigente",
+    "causa": "O sistema está gerando NF-e em uma versão de layout XML diferente da aceita pela SEFAZ.",
+    "resolucao": "Verifiquei a versão do sistema e orientei o cliente a atualizar para a versão mais recente compatível com o layout atual da SEFAZ.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 241: Número da faixa já utilizado",
+    "mensagem": "Rejeição 241: Um número da faixa já foi utilizado",
+    "causa": "Durante uma inutilização de numeração, um dos números da faixa já estava em uso.",
+    "resolucao": "Ajustei a faixa de inutilização para excluir os números já utilizados e reprocessei.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 242: Falha no Schema XML do cabeçalho",
+    "mensagem": "Rejeição 242: Cabeçalho - Falha no Schema XML",
+    "causa": "O cabeçalho do arquivo XML está malformado ou com campos obrigatórios ausentes.",
+    "resolucao": "Verifiquei os campos do cadastro da empresa emitente e corrigi as inconsistências. Reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 243: XML mal formado",
+    "mensagem": "Rejeição 243: XML Mal Formado",
+    "causa": "O arquivo XML da NF-e contém erros de formatação que impedem sua leitura pela SEFAZ.",
+    "resolucao": "Verifiquei todos os campos obrigatórios no sistema. Corrigi os dados inconsistentes e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 245: CNPJ emitente não cadastrado",
+    "mensagem": "Rejeição 245: CNPJ Emitente não cadastrado",
+    "causa": "O CNPJ do emitente não está cadastrado na base da SEFAZ como contribuinte.",
+    "resolucao": "Orientei o cliente a realizar o cadastro/habilitação do CNPJ na SEFAZ do seu estado para emissão de NF-e.",
+    "feedback": "Cliente orientado sobre o procedimento.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 250: UF diverge da UF autorizadora",
+    "mensagem": "Rejeição 250: UF diverge da UF autorizadora",
+    "causa": "O estado informado no endereço do emitente diverge da UF do servidor autorizador para onde a nota foi enviada.",
+    "resolucao": "Verifiquei o endereço cadastrado da empresa emitente e corrigi o estado. Reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 252: Ambiente diverge do ambiente de recebimento",
+    "mensagem": "Rejeição 252: Ambiente informado diverge do Ambiente de recebimento",
+    "causa": "A nota foi enviada para o ambiente de produção mas está configurada como homologação (ou vice-versa).",
+    "resolucao": "Verifiquei a configuração de ambiente no sistema (produção x homologação) e ajustei conforme necessário.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 265: Série não permitida no Web Service",
+    "mensagem": "Rejeição 265: Série utilizada não permitida no Web Service",
+    "causa": "A série da NF-e não é permitida para o tipo de emissão utilizado. Séries 890-899 são reservadas para contingência.",
+    "resolucao": "Ajustei a série da NF-e para uma série permitida (001-889 para produção normal) e reenviei.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 270/271: Código de Município inválido",
+    "mensagem": "Rejeição 270/271: Código Município do Fato Gerador inexistente ou diverge da UF",
+    "causa": "O código IBGE do município informado no endereço está incorreto ou não corresponde ao estado selecionado.",
+    "resolucao": "Corrigi o código do município no cadastro do endereço do emitente ou destinatário. Reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 272/273: Código de Município do emitente inválido",
+    "mensagem": "Rejeição 272/273: Código Município do Emitente inexistente ou diverge da UF",
+    "causa": "O código IBGE do município do emitente está incorreto ou não corresponde ao estado.",
+    "resolucao": "Corrigi o código do município no cadastro da empresa emitente e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 274/275: Código de Município do destinatário inválido",
+    "mensagem": "Rejeição 274/275: Código Município do Destinatário inexistente ou diverge da UF",
+    "causa": "O código IBGE do município do destinatário está incorreto ou não corresponde ao estado informado.",
+    "resolucao": "Corrigi o código do município no cadastro do destinatário e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 281: Certificado transmissor vencido",
+    "mensagem": "Rejeição 281: Certificado Transmissor Data Validade",
+    "causa": "O certificado digital utilizado para transmissão das NF-e está com a validade expirada.",
+    "resolucao": "Orientei o cliente a adquirir e instalar um novo certificado digital A1 ou A3 e vinculá-lo ao sistema.",
+    "feedback": "Cliente orientado sobre a renovação do certificado.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 284: Certificado transmissor revogado",
+    "mensagem": "Rejeição 284: Certificado Transmissor revogado",
+    "causa": "O certificado digital foi revogado pela autoridade certificadora.",
+    "resolucao": "Orientei o cliente a adquirir um novo certificado digital junto à certificadora e vinculá-lo ao sistema.",
+    "feedback": "Cliente orientado sobre o procedimento.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 290: Certificado de assinatura inválido",
+    "mensagem": "Rejeição 290: Certificado Assinatura inválido",
+    "causa": "O certificado digital utilizado para assinar a NF-e está inválido ou corrompido.",
+    "resolucao": "Verifiquei o certificado vinculado ao sistema. Orientei o cliente a reinstalar ou renovar o certificado digital.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 291: Certificado de assinatura vencido",
+    "mensagem": "Rejeição 291: Certificado Assinatura Data Validade",
+    "causa": "O certificado digital de assinatura da NF-e está com a validade expirada.",
+    "resolucao": "Orientei o cliente a renovar o certificado digital e vinculá-lo corretamente no sistema.",
+    "feedback": "Cliente orientado sobre a renovação.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 301: Total do ICMS superior ao valor da NF-e",
+    "mensagem": "Rejeição 301: Total do ICMS superior ao valor da NF-e",
+    "causa": "O valor calculado de ICMS é maior que o valor total da nota, indicando erro na configuração dos impostos ou nos valores dos produtos.",
+    "resolucao": "Verifiquei a configuração dos impostos dos produtos na nota e corrigi as alíquotas ou bases de cálculo incorretas.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 302: Somatório do ICMS diverge do total",
+    "mensagem": "Rejeição 302: Somatório dos itens do ICMS diverge do informado no total",
+    "causa": "A soma dos valores de ICMS dos itens não confere com o total de ICMS informado no rodapé da nota.",
+    "resolucao": "Verifiquei os valores de ICMS item a item e ajustei os totais. Reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 304: Somatório do IPI diverge do total",
+    "mensagem": "Rejeição 304: Somatório dos itens de IPI diverge do informado no total",
+    "causa": "A soma dos valores de IPI dos itens não confere com o total de IPI informado no rodapé da nota.",
+    "resolucao": "Verifiquei os valores de IPI item a item e ajustei os totais da nota. Reenviei.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 360/361: Somatório dos itens diverge do total da NF-e",
+    "mensagem": "Rejeição 360/361: Somatório dos itens diverge do informado no total da NF-e",
+    "causa": "O valor total calculado pelos itens não confere com o valor total informado na nota.",
+    "resolucao": "Verifiquei os valores dos produtos, descontos e acréscimos. Corrigi as divergências e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 401: IE do emitente inválida",
+    "mensagem": "Rejeição 401: IE inválida [emitente]",
+    "causa": "A Inscrição Estadual do emitente não passa na validação do formato exigido pelo estado.",
+    "resolucao": "Corrigi a IE no cadastro da empresa conforme o padrão exigido pelo estado. Se não contribuinte, ajustei o indicador de IE.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 402: IE do destinatário inválida",
+    "mensagem": "Rejeição 402: IE inválida [destinatário]",
+    "causa": "A Inscrição Estadual do destinatário não passa na validação do formato exigido pelo estado de destino.",
+    "resolucao": "Corrigi a IE no cadastro do destinatário ou ajustei o indicador para não contribuinte conforme o caso.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 409: Campo obrigatório não informado",
+    "mensagem": "Rejeição 409: Campo obrigatório não informado",
+    "causa": "Um campo obrigatório da NF-e não foi preenchido no sistema.",
+    "resolucao": "Identifiquei o campo obrigatório ausente através da mensagem de erro detalhada e realizei o preenchimento correto.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 410: Campo com valor inválido",
+    "mensagem": "Rejeição 410: Campo com valor inválido",
+    "causa": "Um campo da NF-e está preenchido com um valor fora do padrão aceito pela SEFAZ.",
+    "resolucao": "Identifiquei o campo com valor inválido e corrigi conforme o padrão exigido. Reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 411: Campo preenchido indevidamente",
+    "mensagem": "Rejeição 411: Campo preenchido indevidamente",
+    "causa": "Um campo que não deveria ser preenchido para aquele tipo de operação foi informado.",
+    "resolucao": "Identifiquei o campo preenchido indevidamente e limpei o valor conforme a regra da operação.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 473: CSOSN inválido para emitente do Simples Nacional",
+    "mensagem": "Rejeição 473: CSOSN inválido para emitente do Simples Nacional",
+    "causa": "O código de situação tributária CSOSN informado não é válido para empresas do Simples Nacional.",
+    "resolucao": "Ajustei o CSOSN nos produtos/itens da nota para um código válido para o Simples Nacional (ex: 102, 400, 500).",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 480: CEP do emitente inválido",
+    "mensagem": "Rejeição 480: CEP do emitente inválido",
+    "causa": "O CEP informado no cadastro do emitente está incorreto ou não existe na base dos Correios.",
+    "resolucao": "Corrigi o CEP no cadastro da empresa emitente e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 481: CEP do destinatário inválido",
+    "mensagem": "Rejeição 481: CEP do destinatário inválido",
+    "causa": "O CEP informado no cadastro do destinatário está incorreto ou não existe.",
+    "resolucao": "Corrigi o CEP no cadastro do destinatário e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 539: NCM inválido",
+    "mensagem": "Rejeição 539: NCM inválido",
+    "causa": "O código NCM informado no produto não existe na tabela oficial da Receita Federal ou está com formato incorreto.",
+    "resolucao": "Verifiquei e corrigi o NCM no cadastro do produto. O NCM deve ter 8 dígitos e constar na tabela oficial.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 540: CFOP inválido",
+    "mensagem": "Rejeição 540: CFOP inválido",
+    "causa": "O código CFOP informado na nota não é válido ou não é permitido para o tipo de operação realizada.",
+    "resolucao": "Verifiquei e ajustei o CFOP conforme a natureza da operação (venda, devolução, remessa, etc.).",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 543: CFOP incompatível com operação interestadual/intraestadual",
+    "mensagem": "Rejeição 543: CFOP incompatível com operação interestadual/intraestadual",
+    "causa": "O CFOP utilizado é para operação interna mas a venda é interestadual, ou vice-versa.",
+    "resolucao": "Ajustei o CFOP: para operações dentro do estado usar 5.xxx, para fora do estado usar 6.xxx.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 588: Alíquota do ICMS inválida",
+    "mensagem": "Rejeição 588: Alíquota do ICMS inválida",
+    "causa": "A alíquota de ICMS informada no produto não é válida para a operação ou para os estados envolvidos.",
+    "resolucao": "Verifiquei a alíquota de ICMS configurada no produto e corrigi conforme a tabela de alíquotas do estado.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 591: Informado CST para emitente do Simples Nacional",
+    "mensagem": "Rejeição 591: Informado CST para emitente do Simples Nacional",
+    "causa": "O sistema está usando CST (regime normal) para uma empresa do Simples Nacional, que deve usar CSOSN.",
+    "resolucao": "Ajustei a configuração fiscal do produto para usar CSOSN em vez de CST, conforme o regime tributário da empresa.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 592: Informado CSOSN para emitente do regime normal",
+    "mensagem": "Rejeição 592: Informado CSOSN para emitente fora do Simples Nacional",
+    "causa": "O sistema está usando CSOSN (Simples Nacional) para uma empresa do regime normal, que deve usar CST.",
+    "resolucao": "Ajustei a configuração fiscal do produto para usar CST em vez de CSOSN, conforme o regime tributário da empresa.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 630: Base de cálculo do ICMS-ST inválida",
+    "mensagem": "Rejeição 630: Base de cálculo do ICMS-ST inválida ou divergente",
+    "causa": "O valor da base de cálculo do ICMS por Substituição Tributária está incorreto ou não condiz com os parâmetros configurados.",
+    "resolucao": "Verifiquei a configuração do ICMS-ST no produto (MVA, alíquota interna e interestadual) e corrigi os valores.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 700: Código da UF inválido",
+    "mensagem": "Rejeição 700: Código da UF inválido",
+    "causa": "O código do estado informado no endereço está incorreto ou não corresponde a nenhuma UF válida.",
+    "resolucao": "Verifiquei o estado informado no cadastro e corrigi para o código IBGE correto da UF.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 702: Código do município inválido",
+    "mensagem": "Rejeição 702: Código do município inválido",
+    "causa": "O código IBGE do município está incorreto ou não corresponde ao estado informado.",
+    "resolucao": "Corrigi o código do município no cadastro correspondente e reenviei a nota.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 843: NCM inválido para operação",
+    "mensagem": "Rejeição 843: NCM inválido para a operação informada",
+    "causa": "O código NCM não é válido para o tipo de operação ou produto informado na nota.",
+    "resolucao": "Verifiquei o NCM correto para o produto na tabela da Receita Federal e atualizei o cadastro.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 865: Total dos pagamentos menor que o total da nota",
+    "mensagem": "Rejeição 865: Total dos pagamentos menor que o total da nota",
+    "causa": "A soma dos valores de pagamento informados na nota é menor que o valor total da NF-e.",
+    "resolucao": "Verifiquei e ajustei os valores de pagamento na nota para que o total bata com o valor da NF-e.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 882: GTIN com prefixo inválido",
+    "mensagem": "Rejeição 882: GTIN (cEAN) com prefixo inválido",
+    "causa": "O código de barras GTIN/EAN do produto possui prefixo inválido ou não está cadastrado corretamente.",
+    "resolucao": "Corrigi o código GTIN/EAN no cadastro do produto ou deixei o campo em branco se o produto não possuir código de barras.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 883: GTIN sem informação",
+    "mensagem": "Rejeição 883: GTIN (cEAN) sem informação",
+    "causa": "O campo GTIN é obrigatório para o produto mas não foi preenchido.",
+    "resolucao": "Preenchi o campo GTIN no cadastro do produto com o código de barras correto ou informei SEM GTIN quando aplicável.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 889: GTIN obrigatório para o produto",
+    "mensagem": "Rejeição 889: Obrigatória a informação do GTIN para o produto",
+    "causa": "O produto pertence a uma categoria que exige o preenchimento do GTIN/código de barras.",
+    "resolucao": "Verifiquei o código de barras do produto e incluí o GTIN correto no cadastro.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 899: Meio de pagamento informado incorretamente",
+    "mensagem": "Rejeição 899: Informado incorretamente o campo meio de pagamento",
+    "causa": "O campo de forma de pagamento está preenchido com um código inválido ou incompatível com o tipo de operação.",
+    "resolucao": "Verifiquei e corrigi a forma de pagamento na nota (dinheiro, cartão, boleto, etc.) conforme a operação realizada.",
+    "feedback": "Cliente orientado e agradeceu.",
+    "humor": "Bom",
+    "upsell": "Não",
+    "captura": "Não"
+  },
+  {
+    "erro": "Rejeição 999: Erro não catalogado",
+    "mensagem": "Rejeição 999: Erro não catalogado",
+    "causa": "Erro genérico da SEFAZ para situações não mapeadas nos demais códigos de rejeição.",
+    "resolucao": "Analisei o XML completo da nota e a mensagem de retorno detalhada da SEFAZ para identificar o campo com problema. Corrigi e reenviei.",
+    "feedback": "Cliente orientado sobre o procedimento de análise.",
+    "humor": "Regular",
+    "upsell": "Não",
+    "captura": "Não"
   }
-]
+] 
