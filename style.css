@@ -130,6 +130,8 @@ body {
   font-size: 1rem;
 }
 .btn-icon:hover { background: var(--bg-input-hover); }
+.btn-icon-info { color: var(--text-secondary); }
+.btn-icon-info:hover { color: var(--primary) !important; }
 
 /* ---------- Tabs de tipo de chamado ---------- */
 .tipo-chamado {
@@ -177,6 +179,7 @@ body {
   color: var(--text-label);
   margin-bottom: 5px;
   letter-spacing: 0.2px;
+  min-height: 22px;
 }
 
 .badge-aviso {
@@ -511,9 +514,9 @@ body {
 /* ---------- Toast ---------- */
 .toast-notification {
   position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%) translateY(12px);
+  top: 20px;
+  right: 20px;
+  left: auto;
   background: #1e1e1e;
   color: #fff;
   border: 1px solid var(--border);
@@ -524,13 +527,14 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   opacity: 0;
   pointer-events: none;
+  transform: translateY(-8px);
   transition: all 0.3s ease;
   z-index: 9999;
-  white-space: nowrap;
 }
+
 .toast-notification.show {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 /* ---------- Modal ---------- */
@@ -603,8 +607,24 @@ body {
   color: #fff;
 }
 
+/* Botão salvar modelo no footer */
+.btn-salvar-chamado {
+  border-color: rgba(59,130,246,0.35);
+  color: var(--primary);
+}
+.btn-salvar-chamado:hover {
+  background: rgba(59,130,246,0.08);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 /* ---------- Utilitários ---------- */
 .d-none { display: none !important; }
+
+.app-modal .modal-body {
+  overflow: visible;
+  padding: 20px;
+}
 
 /* ---------- Notificação copiado (canto superior direito) ---------- */
 #copyMessage {
@@ -624,4 +644,16 @@ body {
   transform: translateY(-8px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   z-index: 9999;
+}
+#nomeChamado {
+  height: auto;
+  min-height: 42px;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  width: 100%;
+  display: block;
+}
+
+#nomeChamado:focus {
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
 }

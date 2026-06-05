@@ -399,9 +399,13 @@ document.getElementById('copyBtn').addEventListener('click', () => {
     document.getElementById('capturaNo').checked = true;
     toggleUpsell();
 
-    // Resetar custom select
+    // Resetar custom select de erros
     const sel = document.querySelector('#customSelect .selected');
     if (sel) { sel.textContent = 'Selecione um erro para autopreenchimento...'; sel.classList.add('placeholder'); }
+
+    // Resetar chamados salvos
+    selectedSalvos.textContent = 'Selecione um chamado salvo...';
+    selectedSalvos.classList.add('placeholder');
 
   }).catch(() => {
     showToast('Erro ao copiar. Tente novamente.', 'erro');
@@ -416,9 +420,13 @@ document.getElementById('limparCampos').addEventListener('click', () => {
   document.getElementById('capturaNo').checked = true;
   toggleUpsell();
 
-  // resetar custom select
+  // resetar custom select de erros
   const sel = document.querySelector('#customSelect .selected');
   if (sel) { sel.textContent = 'Selecione um erro para autopreenchimento...'; sel.classList.add('placeholder'); }
+
+  // Resetar chamados salvos
+  selectedSalvos.textContent = 'Selecione um chamado salvo...';
+  selectedSalvos.classList.add('placeholder');
 
   showToast('🧹 Campos limpos');
 });
@@ -500,7 +508,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cache em inputs de texto
   document.querySelectorAll('.field-input').forEach(el => {
+  if (el.id !== 'nomeChamado') {
     criarAutocomplete(el);
+  }
   });
 
   // Restaurar valores do cache na última sessão
@@ -517,4 +527,201 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('cp_session_' + id, el.value);
     });
   });
+});
+// ─── CHAMADOS SALVOS (LOCALSTORAGE) ─────────────────
+const btnSalvar = document.getElementById('btnSalvarChamado');
+const selectSalvos = document.getElementById('selectChamadosSalvos');
+const selectedSalvos = selectSalvos.querySelector('.selected');
+const optionsContSalvos = selectSalvos.querySelector('.options');
+const searchSalvos = selectSalvos.querySelector('#searchSalvos');
+const listSalvos = selectSalvos.querySelector('#listaChamadosSalvos');
+
+let salvosAberto = false;
+
+// Funções de banco de dados (LocalStorage)
+function getChamadosSalvos() {
+  return JSON.parse(localStorage.getItem('cp_chamados_salvos') || '[]');
+}
+
+function setChamadosSalvos(lista) {
+  localStorage.setItem('cp_chamados_salvos', JSON.stringify(lista));
+}
+
+// Renderiza a lista no dropdown
+let chamadoParaExcluir = null;
+
+const modalExcluirChamado = new bootstrap.Modal(
+  document.getElementById('excluirChamadoModal')
+);
+function renderChamadosSalvos(filtro = '') {
+  listSalvos.innerHTML = '';
+  const lista = getChamadosSalvos();
+  const fl = filtro.toLowerCase();
+
+  if (lista.length === 0) {
+    listSalvos.innerHTML = '<div style="color:var(--text-placeholder); cursor:default; text-align:center;">Nenhum chamado salvo.</div>';
+    return;
+  }
+
+  lista.filter(c => c.nome.toLowerCase().includes(fl)).forEach((item) => {
+    const d = document.createElement('div');
+    d.className = 'd-flex justify-content-between align-items-center';
+    
+    // Nome do chamado (clicável para carregar)
+    const span = document.createElement('span');
+    span.textContent = item.nome;
+    span.style.flex = '1';
+    span.addEventListener('click', () => carregarChamadoSalvo(item));
+
+    // Ícone de lixeira (clicável para excluir)
+    const delBtn = document.createElement('i');
+    delBtn.className = 'bi bi-trash3 text-danger ms-2';
+    delBtn.style.cursor = 'pointer';
+    delBtn.title = 'Excluir modelo';
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      chamadoParaExcluir = item.id;
+
+      document.getElementById('nomeModeloExcluir').textContent =
+        `"${item.nome}"`;
+
+      modalExcluirChamado.show();
+    });
+
+    d.appendChild(span);
+    d.appendChild(delBtn);
+    listSalvos.appendChild(d);
+  });
+}
+
+// Preenche os campos com os dados salvos
+function carregarChamadoSalvo(item) {
+  selectedSalvos.textContent = item.nome;
+  selectedSalvos.classList.remove('placeholder');
+  fecharSalvos();
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined) { el.value = val; autoResize(el); cachePush(id, val); }
+  };
+
+  // Restaura todos os campos salvos
+  Object.keys(item.dados).forEach(key => {
+    if (key === 'humor') {
+      const h = document.getElementById('humorSelection');
+      if (h) h.value = item.dados[key];
+    } else if (key === 'upsell') {
+      const u = document.querySelector(`input[name="upsell"][value="${item.dados[key]}"]`);
+      if (u) { u.checked = true; toggleUpsell(); }
+    } else if (key === 'captura') {
+      const c = document.querySelector(`input[name="captura"][value="${item.dados[key]}"]`);
+      if (c) c.checked = true;
+    } else {
+      set(key, item.dados[key]);
+    }
+  });
+
+  showToast('✓ Modelo carregado com sucesso');
+}
+
+// Lógica de abrir/fechar o dropdown
+function abrirSalvos() {
+  optionsContSalvos.classList.remove('d-none');
+  selectedSalvos.classList.add('open');
+  salvosAberto = true;
+  searchSalvos.value = '';
+  renderChamadosSalvos();
+  setTimeout(() => searchSalvos.focus(), 50);
+}
+
+function fecharSalvos() {
+  optionsContSalvos.classList.add('d-none');
+  selectedSalvos.classList.remove('open');
+  salvosAberto = false;
+}
+
+selectedSalvos.addEventListener('click', () => salvosAberto ? fecharSalvos() : abrirSalvos());
+searchSalvos.addEventListener('input', () => renderChamadosSalvos(searchSalvos.value));
+document.addEventListener('click', e => {
+  if (salvosAberto && !selectSalvos.contains(e.target)) fecharSalvos();
+});
+
+// Abre o modal
+btnSalvar.addEventListener('click', () => {
+  document.getElementById('nomeChamado').value = '';
+
+  new bootstrap.Modal(
+    document.getElementById('salvarChamadoModal')
+  ).show();
+});
+
+// Salva quando clicar no botão do modal
+document.getElementById('confirmarSalvarChamado').addEventListener('click', () => {
+
+  const nome = document.getElementById('nomeChamado').value.trim();
+
+  if (!nome) {
+    showToast('Digite um nome para o modelo', 'aviso');
+    return;
+  }
+
+  const val = id => document.getElementById(id)?.value.trim() || '';
+  const upsell = document.querySelector('input[name="upsell"]:checked')?.value;
+  const captura = document.querySelector('input[name="captura"]:checked')?.value;
+
+  const dados = {
+    docNumber: val('docNumber'),
+    errorMessage: val('errorMessage'),
+    problemCause: val('problemCause'),
+    resolution: val('resolution'),
+    duvidaCliente: val('duvidaCliente'),
+    duvidaExplicacao: val('duvidaExplicacao'),
+    contatoRelato: val('contatoRelato'),
+    clientFeedback: val('clientFeedback'),
+    upsellDesc: val('upsellDesc'),
+    humor: document.getElementById('humorSelection')?.value,
+    upsell,
+    captura
+  };
+
+  const novo = {
+    id: Date.now(),
+    nome,
+    dados
+  };
+
+  const lista = getChamadosSalvos();
+  lista.push(novo);
+  setChamadosSalvos(lista);
+
+  renderChamadosSalvos();
+
+  bootstrap.Modal
+    .getInstance(document.getElementById('salvarChamadoModal'))
+    .hide();
+
+  showToast('⭐ Chamado salvo com sucesso!');
+});
+document.getElementById('confirmarExcluirChamado')
+.addEventListener('click', () => {
+
+  let listaAtual = getChamadosSalvos();
+
+  setChamadosSalvos(
+    listaAtual.filter(c => c.id !== chamadoParaExcluir)
+  );
+
+  const listaAtualizada = getChamadosSalvos();
+  renderChamadosSalvos(searchSalvos.value);
+
+  // Se o modelo excluído era o que estava selecionado, ou lista ficou vazia, reseta o select
+  if (listaAtualizada.length === 0 || selectedSalvos.textContent.trim() === document.getElementById('nomeModeloExcluir').textContent.replace(/"/g, '').trim()) {
+    selectedSalvos.textContent = 'Selecione um chamado salvo...';
+    selectedSalvos.classList.add('placeholder');
+  }
+
+  modalExcluirChamado.hide();
+
+  showToast('🗑️ Modelo excluído!', 'aviso');
 });
